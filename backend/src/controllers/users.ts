@@ -76,7 +76,7 @@ export const login = async (req: express.Request, res: express.Response)=>{
     }
 }
 
-export const getUsers = async (req: express.Request, res: express.Response)=>{
+export const getUsers = async (req: express.Request, res: express.Response)=>{//testing remove later
     try{
         const result = await db.query("SELECT * FROM users");
         res.status(200).json(result.rows);
@@ -97,5 +97,19 @@ export const getUserInfo = async (req: express.Request, res: express.Response)=>
     }catch(error){
         console.log(error);
         res.sendStatus(500);
+    }
+}
+
+export const logout = (req: express.Request, res:express.Response)=>{
+    try{
+        res.clearCookie("token",{
+            httpOnly:true,
+            secure:false,
+            sameSite: 'lax'
+        })
+        res.status(200).json({message:"user succesfully logedout"});
+    }catch(error){
+        res.sendStatus(500);
+        console.log(error);
     }
 }

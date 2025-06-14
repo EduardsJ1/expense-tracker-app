@@ -6,10 +6,12 @@ A RESTful API for managing personal expenses and income transactions built with 
 
 - User authentication with JWT tokens
 - Transaction management (CRUD operations)
+- Recurring transactions with automated processing
 - Advanced filtering and search capabilities
 - Transaction summaries and analytics
 - Pagination support
 - Category management
+- Automated cron jobs for recurring transaction processing
 
 ## Tech Stack
 
@@ -19,6 +21,7 @@ A RESTful API for managing personal expenses and income transactions built with 
 - **Database**: PostgreSQL
 - **Authentication**: JWT (JSON Web Tokens)
 - **Password Hashing**: bcrypt
+- **Task Scheduling**: node-cron (for recurring transactions)
 - **Development**: nodemon, ts-node
 
 ## Prerequisites
@@ -184,6 +187,57 @@ The server will start on `http://localhost:8000`
 - **Auth**: Required
 - **Response**: Array of unique categories used by the user
 
+### Recurring Transactions
+
+#### Create Recurring Transaction
+
+- **POST** `/recurring`
+- **Auth**: Required
+- **Body**:
+  ```json
+  {
+    "amount": 1500.0,
+    "type": "income", // or "expense"
+    "category": "salary",
+    "note": "Monthly salary", // optional
+    "recurrence_type": "calendar", // "calendar" or "hourly"
+    "calendar_unit": "monthly", // required if recurrence_type is "calendar": "daily", "weekly", "monthly", "yearly"
+    "interval_hours": 24, // required if recurrence_type is "hourly"
+    "start_date": "2024-01-01T00:00:00Z", // optional, defaults to current date/time
+    "end_date": "2024-12-31T23:59:59Z", // optional
+    "is_active": true // optional, defaults to true
+  }
+  ```
+
+#### Get Recurring Transactions (with filtering)
+
+- **GET** `/recurring`
+- **Auth**: Required
+- **Query Parameters**:
+  - `includeUpdated` (boolean): Use updated_at instead of created_at for date filtering
+  - `from` (string): Start date (YYYY-MM-DD format)
+  - `to` (string): End date (YYYY-MM-DD format)
+  - `type` (string): Filter by "income" or "expense"
+  - `category` (string): Filter by category (single: "food" or multiple: "food,transport,entertainment")
+  - `recurrence_type` (string): Filter by "calendar" or "hourly"
+  - `is_active` (boolean): Filter by active/inactive status
+  - `minAmount` (number): Minimum transaction amount
+  - `maxAmount` (number): Maximum transaction amount
+  - `sortBy` (string): Sort field ("created_at", "amount", "type", "category", "updated_at", "recurrence_type", "interval_hours", "calendar_unit", "start_date", "end_date", "next_occurrence", "is_active") - default: "created_at"
+  - `sortOrder` (string): Sort direction ("asc" or "desc") - default: "desc"
+  - `page` (number): Page number for pagination - default: 1
+  - `items` (number): Items per page - default: 10
+  - `search` (string): Search in note and category fields
+  - `hasNote` (boolean): Filter transactions with/without notes
+
+**Example**: `/recurring?type=income&recurrence_type=calendar&is_active=true&category=salary&page=1&items=10`
+
+#### Delete Recurring Transaction
+
+- **DELETE** `/recurring/:id`
+- **Auth**: Required
+- **Response**: Deleted recurring transaction details
+
 ## Response Formats
 
 ### Success Response
@@ -201,6 +255,31 @@ Most endpoints return JSON data directly or with additional metadata for paginat
 ## Authentication
 
 The API uses JWT tokens stored in HTTP-only cookies. After successful login, the token is automatically included in subsequent requests. Token expires after 2 hours.
+
+## Recurring Transaction Processing
+
+The application includes an automated background job that processes recurring transactions:
+
+- **Schedule**: Runs every hour via cron job
+- **Process**: Checks for active recurring transactions where `next_occurrence <= current_time`
+- **Actions**:
+  - Creates new transactions based on recurring configuration
+  - Updates `next_occurrence` date for future processing
+  - Automatically deactivates recurring transactions when `end_date` is reached
+  - Handles both calendar-based (daily, weekly, monthly, yearly) and hourly intervals
+
+### Recurring Transaction Types
+
+1. **Calendar-based**:
+
+   - `recurrence_type: "calendar"`
+   - Supported units: daily, weekly, monthly, yearly
+   - Uses calendar dates for accurate scheduling
+
+2. **Hourly-based**:
+   - `recurrence_type: "hourly"`
+   - Custom interval in hours (e.g., every 6 hours, 24 hours, etc.)
+   - More flexible for non-standard schedules
 
 ## Database Schema
 
@@ -221,6 +300,25 @@ The API uses JWT tokens stored in HTTP-only cookies. After successful login, the
 - `type` (income/expense)
 - `category` (String)
 - `note` (Text, Optional)
+- `recurring_id` (Foreign Key, Optional) - Links to recurring transaction that created this transaction
+- `created_at`
+- `updated_at`
+
+### Recurring Table
+
+- `id` (Primary Key)
+- `user_id` (Foreign Key)
+- `amount` (Decimal)
+- `type` (income/expense)
+- `category` (String)
+- `note` (Text, Optional)
+- `recurrence_type` (calendar/hourly)
+- `calendar_unit` (daily/weekly/monthly/yearly, Optional)
+- `interval_hours` (Integer, Optional)
+- `start_date` (Timestamp)
+- `end_date` (Timestamp, Optional)
+- `next_occurrence` (Timestamp)
+- `is_active` (Boolean)
 - `created_at`
 - `updated_at`
 
@@ -237,11 +335,15 @@ The API uses JWT tokens stored in HTTP-only cookies. After successful login, the
 src/
 ├── controllers/     # Route handlers
 │   ├── users.ts
-│   └── transactions.ts
+│   ├── transactions.ts
+│   └── recurring_transactions.ts
 ├── routes/         # Route definitions
 │   ├── index.ts
 │   ├── users.ts
-│   └── transactions.ts
+│   ├── transactions.ts
+│   └── recurring.ts
+├── jobs/           # Background job processing
+│   └── recurring.ts
 ├── middlewere/     # Custom middleware
 │   └── index.ts
 ├── helpers/        # Utility functions

@@ -1,6 +1,5 @@
 import express from 'express';
 import db from '../db';
-import { data } from 'react-router-dom';
 declare global {
     namespace Express {
         interface Request {
@@ -56,7 +55,6 @@ export const getTransactions= async (req:express.Request, res: express.Response)
             hasNote //true false, if row has note
         
         } = req.query;
-
         const conditions = ['user_id=$1'];
         const values = [userId] as any;
         let paramIndex = 2;
@@ -147,7 +145,11 @@ export const getTransactions= async (req:express.Request, res: express.Response)
 
         const result = await db.query(query,values);
 
-        res.status(200).json(result.rows);
+        res.status(200).json({
+            currentpage:page,
+            totalPages:totalPages,
+            data:result.rows
+        });
     }catch(error){
         console.log(error);
         res.sendStatus(500);
