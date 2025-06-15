@@ -2,6 +2,12 @@
 
 A RESTful API for managing personal expenses and income transactions built with Node.js, Express, TypeScript, and PostgreSQL.
 
+## TODO / Work in Progress
+
+- [ ] **React Frontend** - User interface for transaction management and analytics charts
+- [ ] **Financial Prediction System** - Monthly forecasting based on recurring transactions
+- [ ] **Rate Limiter** - API request rate limiting and security
+
 ## Features
 
 - User authentication with JWT tokens
@@ -231,6 +237,28 @@ The server will start on `http://localhost:8000`
   - `hasNote` (boolean): Filter transactions with/without notes
 
 **Example**: `/recurring?type=income&recurrence_type=calendar&is_active=true&category=salary&page=1&items=10`
+
+#### Update Recurring Transaction
+
+- **PATCH** `/recurring/:id`
+- **Auth**: Required
+- **Body** (all fields optional):
+  ```json
+  {
+    "amount": 1600.0,
+    "type": "income", // or "expense"
+    "category": "updated_salary",
+    "note": "Updated monthly salary", // optional
+    "recurrence_type": "calendar", // "calendar" or "hourly"
+    "calendar_unit": "monthly", // required if recurrence_type is "calendar": "daily", "weekly", "monthly", "yearly"
+    "interval_hours": 24, // required if recurrence_type is "hourly"
+    "start_date": "2024-01-01T00:00:00Z", // optional
+    "end_date": "2024-12-31T23:59:59Z", // optional
+    "is_active": true // optional
+  }
+  ```
+- **Response**: Updated recurring transaction details
+- **Note**: When updating recurrence-related fields (start_date, recurrence_type, interval_hours, calendar_unit), the next_occurrence is automatically recalculated
 
 #### Delete Recurring Transaction
 
