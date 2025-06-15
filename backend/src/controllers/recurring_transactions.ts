@@ -1,6 +1,7 @@
 import express from 'express';
 import db from '../db';
 import {calculateNextOccurrence} from '../helpers/index';
+import { UpdateRecurring} from '../types/index';
 declare global {
     namespace Express {
         interface Request {
@@ -103,8 +104,8 @@ export const createRecurring = async (req: express.Request, res: express.Respons
             return;
         }
 
-        let active = is_active !== undefined ? is_active : true; // will set is_active to false if nextOcurrence is higher than end_date (it wont execute);
-        if(end_date && next_occurence >= new Date(end_date)){
+        let active = is_active !== undefined ? is_active : true; 
+        if(end_date && next_occurence >= new Date(end_date)){// will set is_active to false if nextOcurrence is higher than end_date (it wont execute);
             active=false;
         }
         query +='is_active, ';
@@ -292,6 +293,119 @@ export const deleteRecurring = async (req:express.Request, res:express.Response)
 
         res.status(200).json(result.rows[0]);
 
+    }catch(error){
+        console.log(error);
+        res.sendStatus(500);
+    }
+}
+
+
+export const updateRecurring = async (req:express.Request, res:express.Response):Promise<void>=>{
+    try{
+        const user_id = req.userId;
+        const {id} = req.params;
+        const update: UpdateRecurring = req.body;
+        if(!id){
+            res.status(400).json({message:"ID for recurring not provided"});
+            return;
+        }
+        const checkQuery = `SELECT * FROM recurring WHERE id = $1 AND user_id = $2`;//check if user owns the recurring
+        const checkResult = await db.query(checkQuery, [id, user_id]);
+
+        if (checkResult.rows.length === 0) {
+         res.status(404).json({ message: "Recurring transaction not found" });
+         return;
+        }
+
+        const currentRecurring = checkResult.rows[0];
+
+        if(update.type && update.type !== 'income' && update.type !== 'expense'){
+            res.status(400).json({message:"type must be income or expense"});
+            return;
+        }
+
+        if(update.recurrence_type==='calendar' && update.calendar_unit){
+            const calendarUnits = ['daily','weekly','monthly','yearly'];
+            if(!calendarUnits.includes(update.calendar_unit)){
+                res.status(400).json({message:'calendar units must be daily weekly monthly or yearly'});
+                return;
+            }
+        }
+
+        if(update.recurrence_type === 'hourly' && !update.interval_hours){
+            res.status(400).json({message:"when updating recurrence type please add inteval_hours"});
+            return;
+        }
+        const query: string[] = [];
+        const values: any[]=[];
+        let paramCount = 0;
+        const addQuery=(field:string,value:any)=>{
+            if(value!==undefined){
+                paramCount++;
+                query.push(`${field} = $${paramCount}`);
+                values.push(value);
+            }
+        }
+
+        addQuery('amount', update.amount);
+        addQuery('type', update.type);
+        addQuery('category', update.category);
+        addQuery('note', update.note);
+        addQuery('recurrence_type', update.recurrence_type);
+        addQuery('interval_hours', update.interval_hours);
+        addQuery('calendar_unit', update.calendar_unit);
+        addQuery('start_date', update.start_date);
+        addQuery('end_date', update.end_date);
+        addQuery('is_active', update.is_active);
+
+        if(addQuery.length===0){
+            res.status(400).json({message:"update params not provided"});
+            return;
+        }
+
+        query.push(`updated_at = NOW()`);
+
+        if (update.start_date || update.recurrence_type || update.interval_hours || update.calendar_unit) { //
+            const newStartDate = update.start_date || currentRecurring.start_date;
+            const newRecurrenceType = update.recurrence_type || currentRecurring.recurrence_type;
+            const newIntervalHours = update.interval_hours || currentRecurring.interval_hours;
+            const newCalendarUnit = update.calendar_unit || currentRecurring.calendar_unit;
+
+            const nextOccurrence = await calculateNextOccurrence(
+                new Date(newStartDate),
+                newRecurrenceType,
+                newCalendarUnit,
+                newIntervalHours
+            );
+
+            addQuery('next_occurrence',nextOccurrence);
+        }
+        
+        if (update.end_date || update.start_date || update.recurrence_type) {
+        const endDate = update.end_date || currentRecurring.end_date;
+            if (endDate) {
+                let nextOcc;
+                if (update.start_date || update.recurrence_type || update.interval_hours || update.calendar_unit) {
+                nextOcc = values[values.length - 1];
+                } else {
+                nextOcc = currentRecurring.next_occurrence;
+                }
+
+                if (new Date(nextOcc) >= new Date(endDate)) {
+                addQuery('is_active',false);
+                }
+            }
+        }
+
+        paramCount++;
+        values.push(id);
+        paramCount++;
+        values.push(user_id);
+        console.log(values);
+        const updateQuery = `UPDATE recurring SET ${query.join(',')} WHERE id=$${paramCount-1} AND user_id=$${paramCount} RETURNING *`;
+        console.log(updateQuery);
+        const result = await db.query(updateQuery,values);
+        res.status(200).json(result.rows[0]);
     }catch(error){
         console.log(error);
         res.sendStatus(500);
