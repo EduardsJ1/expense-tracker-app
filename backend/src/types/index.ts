@@ -11,3 +11,22 @@ export interface UpdateRecurring{
     end_date?: string;
     is_active?: boolean;
 }
+
+export interface PredictionDataPoint {
+  date: string;
+  income: number;
+  expense: number;
+  balance: number;
+}
+
+export interface FinancialPrediction {
+  currentBalance: number;
+  projectedData: PredictionDataPoint[];
+  summary: {
+    totalProjectedIncome: number;
+    totalProjectedExpense: number;
+    finalBalance: number;
+    monthlyAverageIncome: number;
+    monthlyAverageExpense: number;
+  };
+}

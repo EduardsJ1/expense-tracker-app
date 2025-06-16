@@ -5,8 +5,12 @@ A RESTful API for managing personal expenses and income transactions built with 
 ## TODO / Work in Progress
 
 - [ ] **React Frontend** - User interface for transaction management and analytics charts
-- [ ] **Financial Prediction System** - Monthly forecasting based on recurring transactions
 - [ ] **Rate Limiter** - API request rate limiting and security
+- [ ] **Enhance Prediction System** - account for recurring transactions that are inactive but occur later in the year
+
+## TODO / Finished
+
+- [x] **Financial Prediction System** - Monthly forecasting based on recurring transactions
 
 ## Features
 
@@ -29,6 +33,7 @@ A RESTful API for managing personal expenses and income transactions built with 
 - **Password Hashing**: bcrypt
 - **Task Scheduling**: node-cron (for recurring transactions)
 - **Development**: nodemon, ts-node
+- **Testing**:vitest
 
 ## Prerequisites
 

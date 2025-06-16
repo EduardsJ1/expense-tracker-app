@@ -1,5 +1,6 @@
 import express from 'express';
 import db from '../db';
+import {PredictionDataPoint,FinancialPrediction} from '../types'
 declare global {
     namespace Express {
         interface Request {
@@ -346,4 +347,127 @@ export const getTransactionCategories = async (req: express.Request, res: expres
         console.log(error);
         res.sendStatus(500);
     }
+}
+
+
+export const getFinancePrediction = async (req: express.Request, res: express.Response)=>{
+    try{
+        const user_id = req.userId;
+        const months:number = Number(req.query.months) || 12;//optional query set to default 12
+        const getBalanceQuery = `SELECT COALESCE(SUM(CASE WHEN type='income' THEN amount ELSE -amount END),0) as balance FROM transactions WHERE user_id = $1`;
+        const balanceResult = await db.query(getBalanceQuery, [user_id]);
+        const balance = parseFloat(balanceResult.rows[0].balance)||0;
+
+        const getRecurringQuery = `SELECT * FROM recurring WHERE user_id=$1 AND is_active=true ORDER BY next_occurrence ASC`;
+        const recurringResult= await db.query(getRecurringQuery,[user_id]);
+        const recurringTransactions = recurringResult.rows;
+
+        const StartDate = new Date();
+        const endDate = new Date();
+        endDate.setMonth(endDate.getMonth()+months);
+
+        const predictions = await generatePredictions(recurringTransactions,balance,StartDate,endDate);
+        const summary = predictionSummary(balance,predictions);
+        res.status(200).json(summary);
+    }catch(error){
+        console.log(error);
+        res.sendStatus(500);
+    }
+}
+
+export const generatePredictions= async (recurringTransactions:any[],currentBalance:number,fromDate:Date,tillDate:Date)=>{
+    const dataPoints: PredictionDataPoint[]=[];
+    const result = new Map<string,{income:number,expenses:number}>();
+    let balance = currentBalance;
+    for (const recurring of recurringTransactions){
+        const occurences = simulateOccurences(recurring,fromDate,tillDate)
+        for (const date of occurences){
+            const key = `${date.getUTCFullYear()}-${(date.getUTCMonth()+1).toString().padStart(2,'0')}`;
+            if(!result.has(key)){
+                result.set(key,{income:0,expenses:0});
+            }
+            const entry = result.get(key)!;
+            if(recurring.type==='income'){
+                entry.income+=Number(recurring.amount);
+            }else{
+                entry.expenses+=Number(recurring.amount);
+            }
+        }
+    }
+
+    const sortedKeys = Array.from(result.keys()).sort();
+
+    for(const month of sortedKeys){
+        const {income, expenses} = result.get(month)!;
+        balance +=income - expenses;
+        dataPoints.push({
+            date: month,
+            income:income,
+            expense:expenses,
+            balance:balance
+        })
+    }
+
+
+    return dataPoints;
+}
+
+export const simulateOccurences= (recurring:any, forecastStart:Date, forecastEnd:Date):Date[]=>{
+    const occurences: Date[]=[];
+    let current = new Date(Math.max(forecastStart.getTime(),new Date(recurring.next_occurence ?? recurring.start_date).getTime()));
+
+    const until = recurring.end_date ? new Date(recurring.end_date) : forecastEnd;
+
+    while (current<=until && current<=forecastEnd){
+        if(recurring.recurrence_type === 'calendar'){
+            occurences.push(new Date(current));
+            switch (recurring.calendar_unit){
+                case 'daily':
+                    current.setUTCDate(current.getUTCDate() + 1);
+                    break;
+                case 'weekly':
+                    current.setUTCDate(current.getUTCDate() + 7);
+                    break;
+                case 'monthly':
+                    current.setUTCMonth(current.getUTCMonth()+1);
+                    break;
+                case 'yearly':
+                    current.setUTCFullYear(current.getUTCFullYear()+1);
+                    break;
+            }
+        }else if(recurring.recurrence_type==='hourly'&&recurring.interval_hours){
+            occurences.push(new Date(current));
+            current.setUTCHours(current.getUTCHours()+recurring.interval_hours);
+        }
+    }
+    return occurences;
+}
+
+
+const predictionSummary= (balance:number,projectedData:any[]):FinancialPrediction =>{
+    
+    let totalProjectedIncome:number=0;
+    let totalProjectedExpense:number=0;
+    let months=projectedData.length;
+    for(const point of projectedData){
+        totalProjectedIncome+=point.income;
+        totalProjectedExpense+=point.expense;
+    }
+    const monthlyAverageIncome=totalProjectedIncome/months;
+    const monthlyAverageExpense=totalProjectedExpense/months;
+    const finalBalance = projectedData[months-1].balance;
+
+    const summary:FinancialPrediction={
+        currentBalance:balance,
+        projectedData:projectedData,
+        summary:{
+            totalProjectedIncome:totalProjectedIncome,
+            totalProjectedExpense:totalProjectedExpense,
+            finalBalance:finalBalance,
+            monthlyAverageIncome:monthlyAverageIncome,
+            monthlyAverageExpense:monthlyAverageExpense
+        }
+    };
+    return summary;
+
 }
