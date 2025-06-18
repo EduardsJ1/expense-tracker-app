@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Pagination from "../components/Pagination";
 import NewTransactionModal from "../components/modals/CreateNewTransaction";
 import type {FileterOptions} from "../hooks/useTransactions"
+import { formatLocalDateTime } from "../utils/formatDate";
 function TransactionsPage(){    
     const [filters,setFilters]=useState<FileterOptions>({
         page:1,
@@ -34,6 +35,7 @@ function TransactionsPage(){
 
     const {transactions,loading,error}=useTransactions(filters);
     //console.log(transactions?.data)
+
     const handlePage=(page:number)=>{
         setFilters((prev)=>({...prev,page}));
     }
@@ -141,7 +143,7 @@ function TransactionsPage(){
                     <tbody>
                     {transactions?.data.map((transaction)=>(
                         <tr key={transaction.id} className="">
-                            <td className="px-6 py-3 text-center">{new Date(transaction.updated_at).toLocaleString()}</td>
+                            <td className="px-6 py-3 text-center">{formatLocalDateTime(transaction.updated_at)}</td>
                             <td className="px-6 py-3 text-center">{transaction.type==="income"?<span className="bg-green-100 text-green-600 text-xs font-medium rounded-full px-2 py-0.5">Income</span>:<span className="bg-red-100 text-red-600 font-medium text-xs rounded-full px-2 py-0.5 ">Expense</span>}</td>
                             <td className="px-6 py-3 text-center"><span className="bg-neutral-50 border border-neutral-200 px-2 py-0.5 rounded-full text-xs">{transaction.category}</span></td>
                             <td className="px-6 py-3 text-center">{transaction.note}</td>
