@@ -143,7 +143,7 @@ function TransactionsPage(){
                     <tbody>
                     {transactions?.data.map((transaction)=>(
                         <tr key={transaction.id} className="">
-                            <td className="px-6 py-3 text-center">{formatLocalDateTime(transaction.updated_at)}</td>
+                            <td className="px-6 py-3 text-center">{formatLocalDateTime(transaction.created_at)}</td>
                             <td className="px-6 py-3 text-center">{transaction.type==="income"?<span className="bg-green-100 text-green-600 text-xs font-medium rounded-full px-2 py-0.5">Income</span>:<span className="bg-red-100 text-red-600 font-medium text-xs rounded-full px-2 py-0.5 ">Expense</span>}</td>
                             <td className="px-6 py-3 text-center"><span className="bg-neutral-50 border border-neutral-200 px-2 py-0.5 rounded-full text-xs">{transaction.category}</span></td>
                             <td className="px-6 py-3 text-center">{transaction.note}</td>
