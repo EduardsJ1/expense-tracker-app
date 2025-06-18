@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { TransactionData,createTransactionType, Summary,SummaryFilters } from "../types/transactions";
+import type { TransactionData,createTransactionType, Summary,SummaryFilters, Transaction } from "../types/transactions";
 
 const API = axios.create({
     baseURL: "http://localhost:8000",
@@ -33,7 +33,10 @@ export const createTransaction = async (data:createTransactionType) =>{
     const response = await API.post('/transactions',data);
     return response;
 }
-
+export const updateTransaction = async (data:createTransactionType,id:number)=>{
+    const response = await API.patch(`/transactions/${id}`,data);
+    return;
+}
 export const getSummary = async (params?:SummaryFilters) =>{
     const response = await API.get<Summary>("/transactions/summary",{params});
     //console.log(response.data);
