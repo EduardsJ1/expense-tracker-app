@@ -25,6 +25,14 @@ export const register = async (req: express.Request, res: express.Response)=>{
         const hashedPassword = await hashPassword(password);
         const result = await db.query(`INSERT INTO users (email,password,name) VALUES ($1,$2,$3) RETURNING id, email, name`,[email,hashedPassword,username]);
         const newUser = result.rows[0];
+        const token = generateJWTtoken(newUser.id);
+
+        res.cookie("token",token,{
+            httpOnly:true,
+            maxAge: 2*60*60*1000,
+            secure: false,
+            sameSite:'lax'
+        });
         res.status(201).json({
             message:"user created",
             id:newUser.id,

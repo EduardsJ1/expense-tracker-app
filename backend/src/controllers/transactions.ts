@@ -212,7 +212,7 @@ export const getTransactionsSummary = async (req: express.Request, res: express.
             } else {
                 selectClause = `DATE_TRUNC('${groupBy}', created_at) as period,`;
                 groupByClause = `GROUP BY DATE_TRUNC('${groupBy}', created_at)`;
-                orderByClause = 'ORDER BY period';
+                orderByClause = 'ORDER BY period DESC';
             }
         }
 
