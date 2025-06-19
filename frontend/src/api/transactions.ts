@@ -43,4 +43,8 @@ export const getSummary = async (params?:SummaryFilters) =>{
     return response.data;
 }
 
+export const deleteTransaction = async (id:number)=>{
+    const response = await API.delete(`/transactions/${id}`);
+    return response;
+}
 ///delete patch ect

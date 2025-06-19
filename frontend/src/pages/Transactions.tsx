@@ -6,6 +6,9 @@ import NewTransactionModal from "../components/modals/CreateNewTransaction";
 import type {FileterOptions} from "../hooks/useTransactions"
 import { formatLocalDateTime } from "../utils/formatDate";
 import type { Transaction } from "../types/transactions";
+import DeleteModal from "../components/modals/DeleteModal";
+import TrashIcon from "../components/ui/icons/TrashIcon";
+import EditIcon from "../components/ui/icons/EditIcon";
 function TransactionsPage(){    
     const [filters,setFilters]=useState<FileterOptions>({
         page:1,
@@ -25,6 +28,13 @@ function TransactionsPage(){
 
     const [Modaldisplay,setModalDisplay]=useState(false);
     const [transaction,setTransaction]=useState<Transaction|null>(null);
+    const [deleteDisplay,setDeleteDisplay]=useState(false);
+    const [transactionDeleteid,setDeleteTransactionId]=useState(0);
+
+    const handleDeleteTransaction=(id:number)=>{
+        setDeleteTransactionId(id)
+        setDeleteDisplay(true);
+    }
     const handleNewTransaction=()=>{
         setModalDisplay(true);
     }
@@ -142,7 +152,7 @@ function TransactionsPage(){
                             <th scope="col" className="px-6 py-3">Description</th>
                             <th scope="col" className="px-6 py-3" >Amount</th>
                             <th scope="col" className="px-6 py-3">Status</th>
-                            <th scope="col" className="px-6 py-3"></th>
+                            <th scope="col" className="px-6 py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -156,16 +166,9 @@ function TransactionsPage(){
                             <td className="px-6 py-3 text-center">{transaction.recurring_id ? (<span className="bg-cyan-50 text-blue-700 font-bold rounded-full px-2 py-0.5 text-xs ">recurring</span>) : ""}</td>
                             
                             <td className="px-6 py-3 flex justify-around">
-                                <button 
-                                    onClick={()=>handleEditTransaction(transaction)}
-                                    className="rounded-full bg-green-600 px-2 py-0.5 text-white font-medium hover:bg-green-700 cursor-pointer">
-                                    Edit
-                                </button>
-                                <button className="rounded-full bg-red-200 px-1 pl-2 py-0.5 flex justify-center items-center hover:bg-red-300 cursor-pointer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="inline w-4 h-4 mr-1 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m5 0H4" />
-                                    </svg>
-                                </button>
+                                <button  onClick={()=>handleEditTransaction(transaction)} className="border-1 border-neutral-400 rounded-md p-2 hover:bg-neutral-300 cursor-pointer"><span><EditIcon size={20} color="#3b3b3b"/></span></button>
+                                
+                                <button onClick={()=>handleDeleteTransaction(transaction.id)} className="border-1 border-neutral-400 rounded-md p-2 hover:bg-neutral-300 cursor-pointer"><span><TrashIcon size={20}/></span></button>
                             </td>
                         </tr>
                     ))}
@@ -174,6 +177,7 @@ function TransactionsPage(){
                 <Pagination totalPages={transactions?.totalPages||1} currentPage={Number(transactions?.currentpage)||1} setPage={handlePage}/>
             </div>
         </div>
+        <DeleteModal display={deleteDisplay} closeModal={()=>setDeleteDisplay(false)} onDeleted={handleRefreshTransactions} transactionid={transactionDeleteid}/>
         <NewTransactionModal display={Modaldisplay} closeModal={()=>setModalDisplay(false)} onTransactionCreate={handleRefreshTransactions} transactionToEdit={transaction}/>
         </>
     )

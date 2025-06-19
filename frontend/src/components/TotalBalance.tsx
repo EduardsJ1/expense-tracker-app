@@ -6,7 +6,7 @@ function TotalBalance({balance}:{balance:number}){
     const isBalanceNegative = balance <= 0;
 
     return(
-        <div className={`shadow-xl ml-2 rounded-2xl px-5 w-2xs py-5 flex justify-between items-center ${isBalanceNegative ? "bg-gradient-to-tr from-red-400 to-red-500" : "bg-gradient-to-tr from-green-600  to-green-700"}`}>
+        <div className={`shadow-xl rounded-2xl px-5 w-2xs py-5 flex justify-between items-center ${isBalanceNegative ? "bg-gradient-to-tr from-red-400 to-red-500" : "bg-gradient-to-tr from-green-600  to-green-700"}`}>
             <div>
             <h3 className="text-neutral-100 font-medium">Total Balance</h3>
             <p className="text-2xl text-white font-medium">$ {balance}</p>

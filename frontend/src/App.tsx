@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import TransactionsPage from './pages/Transactions';
 import LandingPage from './pages/Landingpage';
 import ProtectedRoute from './components/ProtectedRoute';
+import Recurring from './pages/Reccurring';
 function App() {
 
   return (
@@ -18,6 +19,7 @@ function App() {
 
           <Route path='/dashboard' element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
           <Route path='/transactions' element={<ProtectedRoute><TransactionsPage/></ProtectedRoute>}/>
+          <Route path='/reccurring' element={<ProtectedRoute><Recurring/></ProtectedRoute>}/>
         </Routes>
      </BrowserRouter>
     </>
