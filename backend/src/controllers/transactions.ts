@@ -356,15 +356,13 @@ export const getFinancePrediction = async (req: express.Request, res: express.Re
         const months:number = Number(req.query.months) || 12;//optional query set to default 12
         const getBalanceQuery = `SELECT COALESCE(SUM(CASE WHEN type='income' THEN amount ELSE -amount END),0) as balance FROM transactions WHERE user_id = $1`;
         const balanceResult = await db.query(getBalanceQuery, [user_id]);
-        const balance = parseFloat(balanceResult.rows[0].balance)||0;
-
-        const getRecurringQuery = `SELECT * FROM recurring WHERE user_id=$1 AND is_active=true ORDER BY next_occurrence ASC`;
-        const recurringResult= await db.query(getRecurringQuery,[user_id]);
-        const recurringTransactions = recurringResult.rows;
-
+        const balance = parseFloat(balanceResult.rows[0].balance)||0;          
         const StartDate = new Date();
         const endDate = new Date();
-        endDate.setMonth(endDate.getMonth()+months);
+        endDate.setMonth(endDate.getMonth()+months);        // Include active recurring transactions OR recurring transactions that will start within our prediction period
+        const getRecurringQuery = `SELECT * FROM recurring WHERE user_id=$1 AND (is_active=true OR (start_date <= $2 AND start_date >= $3)) ORDER BY start_date ASC, next_occurrence ASC`;
+        const recurringResult= await db.query(getRecurringQuery,[user_id, endDate, StartDate]);
+        const recurringTransactions = recurringResult.rows;
 
         const predictions = await generatePredictions(recurringTransactions,balance,StartDate,endDate);
         const summary = predictionSummary(balance,predictions);
@@ -414,14 +412,50 @@ export const generatePredictions= async (recurringTransactions:any[],currentBala
 
 export const simulateOccurences= (recurring:any, forecastStart:Date, forecastEnd:Date):Date[]=>{
     const occurences: Date[]=[];
-    let current = new Date(Math.max(forecastStart.getTime(),new Date(recurring.next_occurence ?? recurring.start_date).getTime()));
+    
+    // Determine the actual start date for this recurring transaction
+    let actualStartDate;
+    if (recurring.is_active && recurring.next_occurrence) {
+        // If active and has next_occurrence, use that
+        actualStartDate = new Date(recurring.next_occurrence);
+    } else {
+        // If not active or no next_occurrence, use start_date
+        actualStartDate = new Date(recurring.start_date);
+    }
+    
+    // The transaction should start no earlier than its actual start date,
+    // but also no earlier than our forecast start
+    let current = new Date(Math.max(forecastStart.getTime(), actualStartDate.getTime()));
 
-    const until = recurring.end_date ? new Date(recurring.end_date) : forecastEnd;
+    // Since end_date is no longer used, we only use forecastEnd
+    const until = forecastEnd;
 
-    while (current<=until && current<=forecastEnd){
-        if(recurring.recurrence_type === 'calendar'){
-            occurences.push(new Date(current));
-            switch (recurring.calendar_unit){
+    while (current <= until && current <= forecastEnd){
+        occurences.push(new Date(current));
+        
+        // Calculate next occurrence based on the new recurrence structure
+        if(recurring.recurrence_type === 'custom'){
+            if(!recurring.custom_interval){
+                break; // Invalid custom recurring, stop
+            }
+            switch (recurring.custom_unit){
+                case 'hours':
+                    current.setUTCHours(current.getUTCHours() + recurring.custom_interval);
+                    break;
+                case 'days':
+                    current.setUTCDate(current.getUTCDate() + recurring.custom_interval);
+                    break;
+                case 'weeks':
+                    current.setUTCDate(current.getUTCDate() + (recurring.custom_interval * 7));
+                    break;
+                case 'months':
+                    current.setUTCMonth(current.getUTCMonth() + recurring.custom_interval);
+                    break;
+                default:
+                    break; // Invalid custom unit, stop
+            }
+        } else {
+            switch (recurring.recurrence_type) {
                 case 'daily':
                     current.setUTCDate(current.getUTCDate() + 1);
                     break;
@@ -429,15 +463,14 @@ export const simulateOccurences= (recurring:any, forecastStart:Date, forecastEnd
                     current.setUTCDate(current.getUTCDate() + 7);
                     break;
                 case 'monthly':
-                    current.setUTCMonth(current.getUTCMonth()+1);
+                    current.setUTCMonth(current.getUTCMonth() + 1);
                     break;
                 case 'yearly':
-                    current.setUTCFullYear(current.getUTCFullYear()+1);
+                    current.setUTCFullYear(current.getUTCFullYear() + 1);
                     break;
+                default:
+                    break; // Invalid recurrence type, stop
             }
-        }else if(recurring.recurrence_type==='hourly'&&recurring.interval_hours){
-            occurences.push(new Date(current));
-            current.setUTCHours(current.getUTCHours()+recurring.interval_hours);
         }
     }
     return occurences;

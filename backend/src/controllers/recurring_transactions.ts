@@ -21,10 +21,9 @@ export const createRecurring = async (req: express.Request, res: express.Respons
             category,
             note,
             recurrence_type,
-            interval_hours,
-            calendar_unit,
+            custom_unit,
+            custom_interval,
             start_date,
-            end_date,
             is_active
         } = req.body;
 
@@ -44,24 +43,23 @@ export const createRecurring = async (req: express.Request, res: express.Respons
         values.push(amount,type,category,recurrence_type);
         query+='amount, type, category, recurrence_type, ';
 
-        if(recurrence_type==='calendar'){
-            if(calendar_unit!=='daily' && calendar_unit!== 'weekly' && calendar_unit !=='monthly' && calendar_unit!=='yearly'){
-                res.status(400).json({message:'calendar_unit dosent include daily, weekly, monthly or yearly'});
+        if(recurrence_type==='custom'){
+            if(custom_unit!=='hours' && custom_unit!== 'days' && custom_unit !=='weeks' && custom_unit!=='months'){
+                res.status(400).json({message:'custom_unit doesn\'t include hours,days,weeks,months'});
                 return;
             }else{
-                query+='calendar_unit,';
-                values.push(calendar_unit);
+                query+='custom_unit,';
+                values.push(custom_unit);
+                if(!custom_interval){
+                    res.status(400).json({message: 'custom interval number not provided'});
+                    return;
+                }else{
+                    query+='custom_interval,';
+                    values.push(custom_interval);
+                }
             }
-        }else if(recurrence_type==='hourly'){
-            if(!interval_hours){
-                res.status(400).json({message: 'hours not provided'});
-                return;
-            }else{
-                query+='interval_hours,';
-                values.push(interval_hours);
-            }
-        }else{
-            res.status(400).json({message: 'recurrence_type dosent have values hourly or calendar'});
+        }else if(recurrence_type!=='daily' && recurrence_type!=='weekly' && recurrence_type!=='monthly' && recurrence_type!=='yearly'){
+            res.status(400).json({message:"recurence_type needs to have values daily,weekly,monthly,yearly or custom"});
             return;
         }
         
@@ -80,20 +78,8 @@ export const createRecurring = async (req: express.Request, res: express.Respons
         query += 'start_date,';
         values.push(startDate);
 
-        if(end_date){
-            const endDate = new Date(end_date);
-            if(isNaN(endDate.getTime())){
-                res.status(400).json({message:"end_date must be a valid date"});
-                return;
-            }
-            if(endDate <= startDate){
-                res.status(400).json({message:"end_date must be after start_date"});
-                return;
-            }
-            query+='end_date,';
-            values.push(endDate);
-        }
-        const next_occurence = calculateNextOccurrence(startDate,recurrence_type,calendar_unit,parseInt(interval_hours));
+        const next_occurence = start_date?start_date:new Date();
+        //calculateNextOccurrence(startDate,recurrence_type,custom_unit,parseInt(custom_interval));
 
         if(transactionNote){
             query+='note,';
@@ -104,10 +90,7 @@ export const createRecurring = async (req: express.Request, res: express.Respons
             return;
         }
 
-        let active = is_active !== undefined ? is_active : true; 
-        if(end_date && next_occurence >= new Date(end_date)){// will set is_active to false if nextOcurrence is higher than end_date (it wont execute);
-            active=false;
-        }
+        const active = is_active !== undefined ? is_active : true; 
         query +='is_active, ';
         values.push(active);
 
@@ -140,14 +123,14 @@ export const getRecurringTransactions = async (req:express.Request, res:express.
             
             type, // set type for "income" or "expense"
             category, // specific category "wage" or multiple "wage,food,car"
-            recurrence_type, //what recurrence_type income or expense
+            recurrence_type, //what recurrence_type daily/weekly/monthly/yearly/custom
             is_active, //what recurring transactions are active
 
 
             maxAmount, // maximum amount
             minAmount, // minimum amount
 
-            sortBy='created_at', // sort by category, amount, type, updated_at, recurrence_type, interval_hours, calendar_unit,start_date,end_date,next_occurrence,is_active default(created_at)
+            sortBy='created_at', // sort by category, amount, type, updated_at, recurrence_type, custom_interval,start_date,end_date,next_occurrence,is_active default(created_at)
             sortOrder='desc', // sort order asc or desc
 
             page=1, // page number (default 1)
@@ -201,7 +184,7 @@ export const getRecurringTransactions = async (req:express.Request, res:express.
             }
         }
 
-        if(recurrence_type && ['calendar','hourly'].includes(recurrence_type as string)){
+        if(recurrence_type && ['daily','weekly','monthly','yearly','custom'].includes(recurrence_type as string)){
             conditions.push(`recurrence_type=$${paramIndex}`);
             values.push(recurrence_type);
             paramIndex++;
@@ -323,78 +306,59 @@ export const updateRecurring = async (req:express.Request, res:express.Response)
             res.status(400).json({message:"type must be income or expense"});
             return;
         }
-
-        if(update.recurrence_type==='calendar' && update.calendar_unit){
-            const calendarUnits = ['daily','weekly','monthly','yearly'];
-            if(!calendarUnits.includes(update.calendar_unit)){
-                res.status(400).json({message:'calendar units must be daily weekly monthly or yearly'});
+        
+        if(update.recurrence_type){
+            if(update.recurrence_type==='custom'){
+                if(update.custom_unit && !['hours', 'days', 'weeks', 'months'].includes(update.custom_unit)){
+                    res.status(400).json({message:"custom_unit must be hours, days, weeks, or months"});
+                    return;
+                }
+                if(update.custom_interval && (update.custom_interval <= 0 || !Number.isInteger(update.custom_interval))){
+                    res.status(400).json({message:"custom_interval must be a positive integer"});
+                    return;
+                }
+            }else if (!["daily","weekly","monthly","yearly"].includes(update.recurrence_type)){
+                res.status(400).json({message:"recurrence_type must be daily, weekly, monthly, yearly, or custom"});
                 return;
             }
         }
-
-        if(update.recurrence_type === 'hourly' && !update.interval_hours){
-            res.status(400).json({message:"when updating recurrence type please add inteval_hours"});
-            return;
-        }
         const query: string[] = [];
         const values: any[]=[];
-        let paramCount = 0;
-        const addQuery=(field:string,value:any)=>{
+        let paramCount = 0;        const addQuery=(field:string,value:any)=>{
             if(value!==undefined){
                 paramCount++;
                 query.push(`${field} = $${paramCount}`);
                 values.push(value);
             }
-        }
-
+        };
+        
         addQuery('amount', update.amount);
         addQuery('type', update.type);
         addQuery('category', update.category);
         addQuery('note', update.note);
         addQuery('recurrence_type', update.recurrence_type);
-        addQuery('interval_hours', update.interval_hours);
-        addQuery('calendar_unit', update.calendar_unit);
+        addQuery('custom_unit', update.custom_unit);
+        addQuery('custom_interval', update.custom_interval);
         addQuery('start_date', update.start_date);
-        addQuery('end_date', update.end_date);
         addQuery('is_active', update.is_active);
 
-        if(addQuery.length===0){
+        if(query.length===0){
             res.status(400).json({message:"update params not provided"});
             return;
         }
 
-        query.push(`updated_at = NOW()`);
-
-        if (update.start_date || update.recurrence_type || update.interval_hours || update.calendar_unit) { //
+        query.push(`updated_at = NOW()`);        if (update.start_date || update.recurrence_type || update.custom_unit || update.custom_interval) {
             const newStartDate = update.start_date || currentRecurring.start_date;
             const newRecurrenceType = update.recurrence_type || currentRecurring.recurrence_type;
-            const newIntervalHours = update.interval_hours || currentRecurring.interval_hours;
-            const newCalendarUnit = update.calendar_unit || currentRecurring.calendar_unit;
+            const newCustomUnit = update.custom_unit || currentRecurring.custom_unit;
+            const newCustomInterval = update.custom_interval || currentRecurring.custom_interval;
 
-            const nextOccurrence = await calculateNextOccurrence(
+            const nextOccurrence = calculateNextOccurrence(
                 new Date(newStartDate),
                 newRecurrenceType,
-                newCalendarUnit,
-                newIntervalHours
-            );
-
-            addQuery('next_occurrence',nextOccurrence);
-        }
-        
-        if (update.end_date || update.start_date || update.recurrence_type) {
-        const endDate = update.end_date || currentRecurring.end_date;
-            if (endDate) {
-                let nextOcc;
-                if (update.start_date || update.recurrence_type || update.interval_hours || update.calendar_unit) {
-                nextOcc = values[values.length - 1];
-                } else {
-                nextOcc = currentRecurring.next_occurrence;
-                }
-
-                if (new Date(nextOcc) >= new Date(endDate)) {
-                addQuery('is_active',false);
-                }
-            }
+                newCustomUnit,
+                newCustomInterval
+            );            addQuery('next_occurrence',nextOccurrence);
         }
 
         paramCount++;

@@ -20,13 +20,33 @@ export const generateJWTtoken = (userId:number) => {
     return token;
 }
 
-export const calculateNextOccurrence = (startDate: Date, recurrenceType: string, calendarUnit?: string, intervalHours?: number): Date => {
+export const calculateNextOccurrence = (startDate: Date, recurrenceType: string, custom_unit?: string, custom_interval?: number): Date => {
     const nextOccurrence = new Date(startDate);
     
-    if (recurrenceType === 'hourly') {
-        nextOccurrence.setUTCHours(nextOccurrence.getUTCHours() + (intervalHours || 1));
-    } else if (recurrenceType === 'calendar') {
-        switch (calendarUnit) {
+    if (recurrenceType === 'custom') {
+        if(!custom_interval){
+            throw new Error('for custom type custom_interval not provided');
+        }else{
+            switch (custom_unit){
+            case 'hours':
+                nextOccurrence.setUTCHours(nextOccurrence.getUTCHours()+(custom_interval));
+                break;
+            case 'days':
+                nextOccurrence.setUTCDate(nextOccurrence.getUTCDate()+(custom_interval));
+                break;
+            case 'weeks':
+                nextOccurrence.setUTCDate(nextOccurrence.getUTCDate()+(custom_interval*7));
+                break;
+            case 'months':
+                nextOccurrence.setUTCMonth(nextOccurrence.getUTCMonth()+(custom_interval));
+                break;
+            default:
+                throw new Error("custom_unit invaldid units! only hours days weeks or months");
+        }
+        }
+        
+    } else{
+        switch (recurrenceType) {
             case 'daily':
                 nextOccurrence.setUTCDate(nextOccurrence.getUTCDate() + 1);
                 break;

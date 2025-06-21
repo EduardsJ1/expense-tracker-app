@@ -2,57 +2,100 @@ import {describe, it, expect} from 'vitest';
 import {simulateOccurences, generatePredictions} from '../controllers/transactions';
 
 describe('simulateOccurences',()=>{
-    it('generates daily calendar occurences within range',()=>{
+    it('generates daily recurrence within range',()=>{
         const recurring = {
-        recurrence_type: 'calendar',
-        calendar_unit: 'daily',
+        recurrence_type: 'daily',
         start_date: '2025-06-01T00:00:00Z',
-        end_date: '2025-06-03T00:00:00Z',
-        next_occurence: null
+        next_occurrence: null
         };
 
         const forecastStart = new Date('2025-06-01T00:00:00Z');
-        const forecastEnd = new Date('2025-06-05T00:00:00Z');
+        const forecastEnd = new Date('2025-06-03T00:00:00Z');
 
         const result = simulateOccurences(recurring, forecastStart, forecastEnd);
 
         expect(result.length).toBe(3);
         expect(result[0].toISOString()).toBe('2025-06-01T00:00:00.000Z');
+        expect(result[1].toISOString()).toBe('2025-06-02T00:00:00.000Z');
         expect(result[2].toISOString()).toBe('2025-06-03T00:00:00.000Z');
     });
 
-    it('stops at forecastEnd even if end_date is further', () => {
-    const recurring = {
-      recurrence_type: 'calendar',
-      calendar_unit: 'daily',
-      start_date: '2025-06-01T00:00:00Z',
-      end_date: '2025-07-01T00:00:00Z',
-      next_occurence: null
-    };
+    it('handles weekly recurrence correctly', () => {
+        const recurring = {
+            recurrence_type: 'weekly',
+            start_date: '2025-06-01T00:00:00Z',
+            next_occurrence: null
+        };
 
-    const forecastStart = new Date('2025-06-01T00:00:00Z');
-    const forecastEnd = new Date('2025-06-03T00:00:00Z');
+        const forecastStart = new Date('2025-06-01T00:00:00Z');
+        const forecastEnd = new Date('2025-06-15T00:00:00Z');
 
-    const result = simulateOccurences(recurring, forecastStart, forecastEnd);
+        const result = simulateOccurences(recurring, forecastStart, forecastEnd);
 
-    expect(result.length).toBe(3);
-  });
+        expect(result.length).toBe(3);
+        expect(result[0].toISOString()).toBe('2025-06-01T00:00:00.000Z');
+        expect(result[1].toISOString()).toBe('2025-06-08T00:00:00.000Z');
+        expect(result[2].toISOString()).toBe('2025-06-15T00:00:00.000Z');
+    });
 
-  it('handles hourly recurrence correctly', () => {
-    const recurring = {
-      recurrence_type: 'hourly',
-      interval_hours: 2,
-      start_date: '2025-06-01T00:00:00Z',
-      end_date: '2025-06-01T06:00:00Z',
-      next_occurence: null
-    };
+    it('handles custom hourly recurrence correctly', () => {
+        const recurring = {
+            recurrence_type: 'custom',
+            custom_unit: 'hours',
+            custom_interval: 2,
+            start_date: '2025-06-01T00:00:00Z',
+            next_occurrence: null
+        };
 
-    const forecastStart = new Date('2025-06-01T00:00:00Z');
-    const forecastEnd = new Date('2025-06-01T06:00:00Z');
+        const forecastStart = new Date('2025-06-01T00:00:00Z');
+        const forecastEnd = new Date('2025-06-01T06:00:00Z');
 
-    const result = simulateOccurences(recurring, forecastStart, forecastEnd);
+        const result = simulateOccurences(recurring, forecastStart, forecastEnd);
 
-    expect(result.length).toBe(4); // 00:00, 02:00, 04:00, 06:00
+        expect(result.length).toBe(4); // 00:00, 02:00, 04:00, 06:00
+        expect(result[0].toISOString()).toBe('2025-06-01T00:00:00.000Z');
+        expect(result[1].toISOString()).toBe('2025-06-01T02:00:00.000Z');
+        expect(result[2].toISOString()).toBe('2025-06-01T04:00:00.000Z');
+        expect(result[3].toISOString()).toBe('2025-06-01T06:00:00.000Z');
+    });
+
+    it('handles custom daily recurrence correctly', () => {
+        const recurring = {
+            recurrence_type: 'custom',
+            custom_unit: 'days',
+            custom_interval: 3,
+            start_date: '2025-06-01T00:00:00Z',
+            next_occurrence: null
+        };
+
+        const forecastStart = new Date('2025-06-01T00:00:00Z');
+        const forecastEnd = new Date('2025-06-10T00:00:00Z');
+
+        const result = simulateOccurences(recurring, forecastStart, forecastEnd);
+
+        expect(result.length).toBe(4); // 06-01, 06-04, 06-07, 06-10
+        expect(result[0].toISOString()).toBe('2025-06-01T00:00:00.000Z');
+        expect(result[1].toISOString()).toBe('2025-06-04T00:00:00.000Z');
+        expect(result[2].toISOString()).toBe('2025-06-07T00:00:00.000Z');
+        expect(result[3].toISOString()).toBe('2025-06-10T00:00:00.000Z');
+    });
+
+    it('handles monthly recurrence correctly', () => {
+        const recurring = {
+            recurrence_type: 'monthly',
+            start_date: '2025-06-01T00:00:00Z',
+            next_occurrence: null
+        };
+
+        const forecastStart = new Date('2025-06-01T00:00:00Z');
+        const forecastEnd = new Date('2025-08-01T00:00:00Z');
+
+        const result = simulateOccurences(recurring, forecastStart, forecastEnd);
+
+        expect(result.length).toBe(3);
+        expect(result[0].toISOString()).toBe('2025-06-01T00:00:00.000Z');
+        expect(result[1].toISOString()).toBe('2025-07-01T00:00:00.000Z');
+        expect(result[2].toISOString()).toBe('2025-08-01T00:00:00.000Z');
     });
     
 })
@@ -66,17 +109,14 @@ describe('Hello World Test', () => {
 describe('generatePredictions', () => {
   const fromDate = new Date('2025-06-01T00:00:00Z');
   const tillDate = new Date('2025-08-31T23:59:59Z');
-
   it('should generate predictions with single monthly income', async () => {
     const recurringTransactions = [
       {
         type: 'income',
         amount: 1000,
-        recurrence_type: 'calendar',
-        calendar_unit: 'monthly',
+        recurrence_type: 'monthly',
         start_date: '2025-06-01T00:00:00Z',
-        end_date: null,
-        next_occurence: null,
+        next_occurrence: null,
       },
     ];
 
@@ -109,20 +149,16 @@ it('should handle expenses and income together', async () => {
       {
         type: 'income',
         amount: 2000,
-        recurrence_type: 'calendar',
-        calendar_unit: 'monthly',
+        recurrence_type: 'monthly',
         start_date: '2025-06-01T00:00:00Z',
-        end_date: null,
-        next_occurence: null,
+        next_occurrence: null,
       },
       {
         type: 'expense',
         amount: 500,
-        recurrence_type: 'calendar',
-        calendar_unit: 'monthly',
+        recurrence_type: 'monthly',
         start_date: '2025-07-01T00:00:00Z',
-        end_date: null,
-        next_occurence: null,
+        next_occurrence: null,
       },
     ];
 

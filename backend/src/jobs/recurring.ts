@@ -12,9 +12,9 @@ const processRecurring = async () =>{
         const result = await db.query(query,[currentDate]);
 
         for (const recurring of result.rows){
-            if(await checkEndDate(recurring,currentDate)){
-                continue; // end recurring process when end_date is lower than next_occurence
-            }
+            // if(await checkEndDate(recurring,currentDate)){
+            //     continue; // end recurring process when end_date is lower than next_occurence
+            // }
             //console.log(`processing recurring and begininng to add transaction of recuring ${recurring.id}`)
             await createTransaction(recurring);
             await updateNextOccurrence(recurring);
@@ -62,14 +62,9 @@ const createTransaction = async (recurring:any)=>{
 const updateNextOccurrence = async (recurring:any)=>{
     try{
         const prev_nextOccurence=new Date(recurring.next_occurrence);
-        const nextOccurrence = await calculateNextOccurrence(prev_nextOccurence,recurring.recurrence_type,recurring.calendar_unit,recurring.interval_hours);
-        const endDate = new Date(recurring.end_date);
-        let query;
-        if(nextOccurrence>=endDate){//if next occurence is past endDate it is set to false
-            query = `UPDATE recurring SET next_occurrence = $1, is_active=false, updated_at = NOW() WHERE id=$2`;
-        }else{
-            query= `UPDATE recurring SET next_occurrence = $1, updated_at = NOW() WHERE id=$2`;
-        }
+        const nextOccurrence = await calculateNextOccurrence(prev_nextOccurence,recurring.recurrence_type,recurring.custom_unit,recurring.custom_interval);
+        //const endDate = new Date(recurring.end_date);
+        const query= `UPDATE recurring SET next_occurrence = $1, updated_at = NOW() WHERE id=$2`;
         
         await db.query(query,[nextOccurrence.toISOString(),recurring.id]);
     }catch(error){
