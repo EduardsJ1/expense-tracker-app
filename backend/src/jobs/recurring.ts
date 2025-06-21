@@ -77,6 +77,6 @@ const updateNextOccurrence = async (recurring:any)=>{
 
 
 export const startRecurringJob = ()=>{
-    cron.schedule('0 * * * *',processRecurring);
+    cron.schedule('1 * * * *',processRecurring);
     console.log('started Recurring job');
 }
