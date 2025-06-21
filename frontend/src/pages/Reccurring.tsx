@@ -4,10 +4,22 @@ import ReccuringTransactionsTable from "../components/ReccuringTransactionsTable
 import { useState } from "react";
 import {updateReccuring} from "../api/reccurring";
 import ReccuringTransactionsCards from "../components/ReccuringTransactionsCards";
+import NewReccurringModal from "../components/modals/CreateNewReccurring";
+import type {ReccurringType} from "../types/reccurring"
 function Recurring(){
     const [currentPage,setCurrentPage]=useState(1);
     const [refreshKey, setRefreshKey] = useState(0);
+    const [reccuringToEdit,setReccuringToEdit]=useState<ReccurringType|null>(null);
     const {reccuringData,loading,error}=useReccurring({page:currentPage,refreshKey:refreshKey});
+
+    const [displayReccurringModal,SetDisplayReccurringModal]=useState(false);
+    const handleCloseModal=()=>{
+        SetDisplayReccurringModal(false);
+    }
+    const handleOpenReccuringModal = (reccuringData:ReccurringType|null=null)=>{
+        setReccuringToEdit(reccuringData);
+        SetDisplayReccurringModal(true);
+    }
 
     const handlepage=(page:number)=>{
         setCurrentPage(page);
@@ -27,13 +39,14 @@ function Recurring(){
             <h1>AAA</h1>
             <div>
                 <div className="hidden lg:block">
-                    <ReccuringTransactionsTable ReccuringData={reccuringData} handlePage={handlepage} handlePause={handleActive} handleDeleteReccuring={refreshReccurring}/>
+                    <ReccuringTransactionsTable ReccuringData={reccuringData} handlePage={handlepage} handlePause={handleActive} handleDeleteReccuring={refreshReccurring} openReccuringModal={handleOpenReccuringModal}/>
                 </div>
                 <div className="block lg:hidden">
-                    <ReccuringTransactionsCards ReccurringData={reccuringData} handlePage={handlepage} handlePause={handleActive} handleDeleteReccuring={refreshReccurring}/>
+                    <ReccuringTransactionsCards ReccurringData={reccuringData} handlePage={handlepage} handlePause={handleActive} handleDeleteReccuring={refreshReccurring} openReccuringModal={handleOpenReccuringModal}/>
                 </div>
             </div>
         </div>
+        <NewReccurringModal display={displayReccurringModal} closeModal={handleCloseModal} onRecurringCreate={refreshReccurring} ReccuringToEdit={reccuringToEdit}/>
         </>
     )
 }

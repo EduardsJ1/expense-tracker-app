@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { ReccurringData, updateReccuringType } from "../types/reccurring";
+import type { ReccurringData, updateReccuringType,CreateReccurringType } from "../types/reccurring";
 export interface ParamFilters{
     form?:string,
     to?:string,
@@ -28,6 +28,11 @@ export const updateReccuring=async (id:number,update:updateReccuringType)=>{
     //console.log("sending this update",update);
     const result = await API.patch(`/recurring/${id}`,update);
     return result;
+}
+
+export const createReccurring = async (data:CreateReccurringType) =>{
+    const response = await API.post('/recurring',data);
+    return response;
 }
 
 export const deleteReccuring=async (id:number)=>{

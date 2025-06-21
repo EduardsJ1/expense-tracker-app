@@ -1,4 +1,4 @@
-import type { ReccurringData } from "../types/reccurring";
+import type { ReccurringData,ReccurringType } from "../types/reccurring";
 import Pagination from "./Pagination";
 import { formatLocalDateTime } from "../utils/formatDate";
 import ResumeIcon from "./ui/icons/ResumeIcons";
@@ -13,11 +13,13 @@ function ReccuringTransactionsCards({
   handlePage,
   handlePause,
   handleDeleteReccuring,
+  openReccuringModal
 }: {
   ReccurringData?: ReccurringData;
   handlePage: (page: number) => void;
   handlePause: (id: number, is_active: boolean) => void;
   handleDeleteReccuring: () => void;
+  openReccuringModal:(reccurringData?:ReccurringType)=>void
 }) {
   const [deleteDisplay, setDeleteDisplay] = useState(false);
   const [deleteid, setDeleteId] = useState(0);
@@ -41,7 +43,7 @@ function ReccuringTransactionsCards({
           </p>
         </div>
         <div>
-          <button className="bg-green-600 text-white rounded-xl px-4 py-1 font-medium cursor-pointer hover:bg-green-700">
+          <button onClick={()=>openReccuringModal()} className="bg-green-600 text-white rounded-xl px-4 py-1 font-medium cursor-pointer hover:bg-green-700">
             Add Reccurring
           </button>
         </div>
@@ -89,9 +91,9 @@ function ReccuringTransactionsCards({
                 <div>
                   <p className="text-neutral-500">Recurrence</p>
                   <p className="font-medium text-neutral-700">
-                    {reccuring.recurrence_type === "hourly"
-                      ? `Every ${reccuring.interval_hours}h`
-                      : reccuring.calendar_unit}
+                    {reccuring.recurrence_type === "custom"
+                      ? `Every ${reccuring.custom_interval} ${reccuring.custom_unit}`
+                      :reccuring.recurrence_type}
                   </p>
                 </div>
                 <div>
@@ -108,7 +110,7 @@ function ReccuringTransactionsCards({
                     {reccuring.is_active?(<><ResumeIcon size={16} color="#ffffff"/>Active</>):(<><PausedIcon size={16} color="#000000"/>Paused</>)}
                 </span>
                 <div className="flex items-center space-x-1">
-                  <button className="border-1 border-neutral-400 rounded-md p-2 hover:bg-neutral-300 cursor-pointer">
+                  <button onClick={()=>openReccuringModal(reccuring)} className="border-1 border-neutral-400 rounded-md p-2 hover:bg-neutral-300 cursor-pointer">
                     <EditIcon size={20} />
                   </button>
                   <button

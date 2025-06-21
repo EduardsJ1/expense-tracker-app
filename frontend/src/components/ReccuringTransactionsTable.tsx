@@ -1,4 +1,4 @@
-import type {ReccurringData} from "../types/reccurring"
+import type {ReccurringData,ReccurringType} from "../types/reccurring"
 import Pagination from "./Pagination"
 import {formatLocalDateTime} from "../utils/formatDate"
 import ResumeIcon from "./ui/icons/ResumeIcons"
@@ -8,7 +8,9 @@ import TrashIcon from "./ui/icons/TrashIcon"
 import DeleteModal from "./modals/DeleteModal"
 import { useState } from "react"
 
-function ReccuringTransactionsTable({ReccuringData,handlePage,handlePause,handleDeleteReccuring}:{ReccuringData?:ReccurringData,handlePage:(page:number)=>void,handlePause:(id:number,is_active:boolean)=>void,handleDeleteReccuring:()=>void}){
+function ReccuringTransactionsTable(
+    {ReccuringData,handlePage,handlePause,handleDeleteReccuring,openReccuringModal}:
+    {ReccuringData?:ReccurringData,handlePage:(page:number)=>void,handlePause:(id:number,is_active:boolean)=>void,handleDeleteReccuring:()=>void,openReccuringModal:(reccurringData?:ReccurringType)=>void}){
     const [deleteDisplay,setDeleteDisplay]=useState(false);
     const [deleteid,setDeleteId]=useState(0);
     const handleDelete=(id:number)=>{
@@ -28,7 +30,7 @@ function ReccuringTransactionsTable({ReccuringData,handlePage,handlePause,handle
                     <p className="text-base mt-1 text-neutral-500">Manage your automatic transactions</p>
                 </div>
                 <div>
-                    <button className="bg-green-600 text-white rounded-xl px-4 py-1 font-medium cursor-pointer hover:bg-green-700">Add Reccurring</button>
+                    <button onClick={()=>openReccuringModal()} className="bg-green-600 text-white rounded-xl px-4 py-1 font-medium cursor-pointer hover:bg-green-700">Add Reccurring</button>
                 </div>
             </div>
 
@@ -67,7 +69,7 @@ function ReccuringTransactionsTable({ReccuringData,handlePage,handlePause,handle
                                 </td>
 
                                 <td className="px-6 py-3 text-left">
-                                    <span>{reccuring.recurrence_type==="hourly"?`Every ${reccuring.interval_hours} hours`:reccuring.calendar_unit}</span>
+                                    <span>{reccuring.recurrence_type==="custom"?`Every ${reccuring.custom_interval} ${reccuring.custom_unit}`:reccuring.recurrence_type}</span>
                                 </td>
 
                                 <td className="px-6 py-3 text-left">
@@ -81,7 +83,7 @@ function ReccuringTransactionsTable({ReccuringData,handlePage,handlePause,handle
                                 </td>
 
                                 <td className="space-x-2">
-                                    <button className="border-1 border-neutral-400 rounded-md p-2 hover:bg-neutral-300 cursor-pointer"><span><EditIcon size={20} color="#3b3b3b"/></span></button>
+                                    <button onClick={()=>openReccuringModal(reccuring)} className="border-1 border-neutral-400 rounded-md p-2 hover:bg-neutral-300 cursor-pointer"><span><EditIcon size={20} color="#3b3b3b"/></span></button>
                                     <button onClick={()=>handlePause(reccuring.id,!reccuring.is_active)} className="border-1 border-neutral-400 rounded-md p-2 hover:bg-neutral-300 cursor-pointer" >
                                         <span>
                                             {reccuring.is_active?<PausedIcon size={20} color="#f56a00"/>:<ResumeIcon size={20} color="#4ca300"/>}

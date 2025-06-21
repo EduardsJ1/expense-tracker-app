@@ -7,12 +7,14 @@ import MonthsStats from "../components/MonthStatsModule";
 import RecentTransactions from "../components/RecentTransactions";
 import QuickActions from "../components/QuickActionModule";
 import NewTransactionModal from "../components/modals/CreateNewTransaction";
+import NewReccurringModal from "../components/modals/CreateNewReccurring";
 import LinkCard from "../components/ui/LinkCard";
 import TransactionIcon from "../components/ui/icons/TransactionIcon";
 import RecurringIcon from "../components/ui/icons/ReccurringIcon";
 import AnalyticsIcon from "../components/ui/icons/AnalyticsIcon";
 function Dashboard(){
-    const [Modaldisplay,setModalDisplay] = useState(false);
+    const [Transactiondisplay,setTransactionDisplay] = useState(false);
+    const [Recurringdisplay,setRecurringDisplay]=useState(false);
     const [refreshKey,setRefreshKey]=useState(0);
     const { summary, loading: summaryLoading, error: summaryError } = useSummary({groupBy:"month"});
     const {transactions,loading: transactionsLoading,error:transactionsError} = useTransactions({page:1,items:4,refreshKey});
@@ -32,7 +34,7 @@ function Dashboard(){
                     <MonthsStats type="expense" data={summary?.data}/>
                 </div>
                 <div className="flex space-x-2 justify-center gap-5 flex-wrap mb-5">
-                    <QuickActions AddTransaction={()=>setModalDisplay(true)}/>
+                    <QuickActions AddTransaction={()=>setTransactionDisplay(true)} AddRecurring={()=>setRecurringDisplay(true)}/>
                     <RecentTransactions data={transactions?.data ?? []}/>
                     <RecentTransactions data={transactions?.data ?? []}/>
                 </div>
@@ -42,7 +44,8 @@ function Dashboard(){
                     <LinkCard to="/analytics" title="Analytics" description="View statistics" icon={<AnalyticsIcon size={50} color="#800080"/>} iconbackground="bg-purple-300"/>
                 </div>
             </div>
-           <NewTransactionModal display={Modaldisplay} closeModal={()=>setModalDisplay(false)} onTransactionCreate={handleRefreshTransactions}/>
+           <NewTransactionModal display={Transactiondisplay} closeModal={()=>setTransactionDisplay(false)} onTransactionCreate={handleRefreshTransactions}/>
+            <NewReccurringModal display={Recurringdisplay} closeModal={()=>setRecurringDisplay(false)} onRecurringCreate={()=>{}}/>
         </>
     );
 }

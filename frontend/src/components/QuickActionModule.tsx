@@ -1,6 +1,6 @@
 
 
-function QuickActions({AddTransaction}:{AddTransaction:()=>void}){
+function QuickActions({AddTransaction,AddRecurring}:{AddTransaction:()=>void;AddRecurring:()=>void}){
     return(
         <div className="bg-white rounded-2xl w-2xs shadow-xl">
             <div className="px-4 pt-4 mb-3">
@@ -15,7 +15,7 @@ function QuickActions({AddTransaction}:{AddTransaction:()=>void}){
                     + Add Transaction
                 </button>
                 <button 
-                    onClick={AddTransaction} 
+                    onClick={AddRecurring} 
                     className="hover:bg-neutral-50 hover:border-neutral-400 cursor-pointer hover:shadow-xl border border-neutral-300 shadow-lg rounded-xl w-full py-2 text-left pl-5"
                 >
                     + Add Recurring
