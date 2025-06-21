@@ -87,7 +87,7 @@ function NewReccurringModal(
     return(
         <>
         <div className={`fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs `}>
-            <div className="bg-white p-6 rounded-lg shadow-lg w-xl mx-12">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-xl mx-12 max-h-[90vh] overflow-y-auto">
                 <div className="relative">
                     <h2 className="text-xl font-bold text-center">{ReccuringToEdit?"Edit Reccurring Transaction":"Create new Reccurring Transaction"}</h2>
                     <button onClick={closeModal} className="px-3 py-1 text-neutral-400 text-xl rounded absolute -top-4 -right-2 hover:bg-neutral-200 hover:cursor-pointer">X</button>
@@ -134,8 +134,8 @@ function NewReccurringModal(
                             <DropDownOptions values={["daily","weekly","monthly","yearly","custom"]} value={data.recurrence_type} onChange={(value)=>setData((prev)=>({...prev,recurrence_type:value}))}/>
                         </div>
                         {data.recurrence_type==="custom"&&
-                        <div className="flex justify-between gap-4">
-                            <div className="flex-1">
+                        <div className="flex flex-wrap justify-between gap-4">
+                            <div className="flex-1 w-min-[60px]">
                                 <label>Every</label>
                                 <div>
                                     <input
@@ -147,7 +147,7 @@ function NewReccurringModal(
                                 </div>
                             </div>
 
-                            <div className="flex-1">
+                            <div className="flex-1 w-min-[60px]">
                                 <label>Unit</label>
                                 <div>
                                     <DropDownOptions
@@ -162,8 +162,8 @@ function NewReccurringModal(
                     </div>
                     <div className="bg-blue-100 mt-5 rounded-lg px-2 py-2">
                         <h3 className="text-2xl">Schedule Settings</h3>
-                        <div className="flex justify-between gap-4">
-                                <div className="flex-1">
+                        <div className="flex flex-wrap justify-between gap-4">
+                                <div className="flex-1 w-min-[60px]">
                                     <label>Start Date</label>
                                     <div>
                                         <input
@@ -188,7 +188,7 @@ function NewReccurringModal(
                                     </div>
                                 </div>
 
-                                <div className="flex-1">
+                                <div className="flex-1 w-min-[60px]">
                                     <label>Time</label>
                                     <div>
                                         <DropDownOptions

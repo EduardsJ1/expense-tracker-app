@@ -130,7 +130,7 @@ export const getRecurringTransactions = async (req:express.Request, res:express.
             maxAmount, // maximum amount
             minAmount, // minimum amount
 
-            sortBy='created_at', // sort by category, amount, type, updated_at, recurrence_type, custom_interval,start_date,end_date,next_occurrence,is_active default(created_at)
+            sortBy='created_at', // sort by category, amount, type, updated_at, recurrence_type, custom_interval,start_date,next_occurrence,is_active default(created_at)
             sortOrder='desc', // sort order asc or desc
 
             page=1, // page number (default 1)

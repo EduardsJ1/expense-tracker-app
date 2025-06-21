@@ -9,6 +9,8 @@ export interface ParamFilters{
     minAmount?:number,
     sortBy?:string,
     sortOrder?:string,
+    is_active?:boolean,
+    search?:string,
     page?:number,
     items?:number
 }

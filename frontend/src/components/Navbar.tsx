@@ -5,7 +5,7 @@ function Navbar(){
     const {user,logoutUser} = useAuth();
 
     return(
-        <nav className="bg-neutral-50 border-b border-neutral-400 shadow-md p-4 flex justify-between items-center fixed w-full">
+        <nav className="bg-neutral-50 border-b z-50 border-neutral-400 shadow-md p-4 flex justify-between items-center fixed w-full">
             <div>
                 <h2 className="text-2xl font-bold text-gray-800">Expense Tracker</h2>
             </div>

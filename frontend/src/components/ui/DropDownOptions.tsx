@@ -18,7 +18,7 @@ function dropDownOptions({ values,value, placeholder,onChange }: { values: any[]
     };
     
    return (
-        <div className="relative bg-white" ref={dropDownRef}>
+        <div className="relative bg-white rounded-lg" ref={dropDownRef}>
             <button 
                 className="border border-neutral-300 w-full rounded-lg py-2 px-3 hover:bg-neutral-50 cursor-pointer flex justify-between items-center text-left"
                 type="button" 
@@ -29,7 +29,7 @@ function dropDownOptions({ values,value, placeholder,onChange }: { values: any[]
             </button>
             
             {optionsDisplay && (
-                <div className="mt-1 bg-white absolute z-50 border border-neutral-300 rounded-lg w-full shadow-lg max-h-60 overflow-y-auto">
+                <div className="mt-1 bg-white absolute z-40 border border-neutral-300 rounded-lg w-full shadow-lg max-h-60 overflow-y-auto">
                     {values.map((option) => (
                         <button 
                             className="w-full text-left px-3 py-2 hover:bg-neutral-50 first:rounded-t-lg last:rounded-b-lg"
