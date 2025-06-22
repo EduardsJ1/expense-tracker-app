@@ -26,3 +26,50 @@ export function getRelativeDayLabel(utcDateString:string,now:Date=new Date()):st
         return `${dateDiff} days ago`;
     }
 }
+
+export function DateToMonth(date:string|Date,fullMonthName:boolean=false):string{
+    const newDate = new Date (date);
+    const month = newDate.getMonth();
+    let result;
+    switch (month) {
+        case 0:
+            result = fullMonthName ? "January" : "Jan";
+            break;
+        case 1:
+            result = fullMonthName ? "February" : "Feb";
+            break;
+        case 2:
+            result = fullMonthName ? "March" : "Mar";
+            break;
+        case 3:
+            result = fullMonthName ? "April" : "Apr";
+            break;
+        case 4:
+            result = fullMonthName ? "May" : "May";
+            break;
+        case 5:
+            result = fullMonthName ? "June" : "Jun";
+            break;
+        case 6:
+            result = fullMonthName ? "July" : "Jul";
+            break;
+        case 7:
+            result = fullMonthName ? "August" : "Aug";
+            break;
+        case 8:
+            result = fullMonthName ? "September" : "Sep";
+            break;
+        case 9:
+            result = fullMonthName ? "October" : "Oct";
+            break;
+        case 10:
+            result = fullMonthName ? "November" : "Nov";
+            break;
+        case 11:
+            result = fullMonthName ? "December" : "Dec";
+            break;
+        default:
+            result = "";
+    }
+    return result;
+}
