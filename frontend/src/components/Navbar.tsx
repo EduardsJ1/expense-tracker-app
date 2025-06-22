@@ -10,8 +10,10 @@ function Navbar(){
                 <h2 className="text-2xl font-bold text-gray-800">Expense Tracker</h2>
             </div>
             <div className="flex space-x-4">
-                <Link to="/dashboard" className="font- text-gray-600 hover:text-gray-800">Dashboard</Link>
+                <Link to="/dashboard" className="text-gray-600 hover:text-gray-800">Dashboard</Link>
                 <Link to="/transactions" className="text-gray-600 hover:text-gray-800">Transactions</Link>
+                <Link to="/reccurring" className="text-gray-600 hover:text-gray-800">Recurring</Link>
+                
             </div>
             <div className="flex items-center space-x-4">
                 {user ? (
