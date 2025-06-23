@@ -40,7 +40,8 @@ export const createRecurring = async (req: express.Request, res: express.Respons
             res.status(400).json({message:'type must be expense or income'});
             return;
         }
-        values.push(amount,type,category,recurrence_type);
+        const categoryLowerCase = typeof category === 'string' ? category.toLowerCase() : category;
+        values.push(amount, type, categoryLowerCase, recurrence_type);
         query+='amount, type, category, recurrence_type, ';
 
         if(recurrence_type==='custom'){

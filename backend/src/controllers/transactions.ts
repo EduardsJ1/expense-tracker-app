@@ -19,8 +19,11 @@ export const createTransaction= async (req: express.Request, res: express.Respon
         }
 
         const transactionNote= note || null;
-
-        const result = await db.query("INSERT INTO transactions (user_id,amount,type,category,note) VALUES ($1,$2,$3,$4,$5) RETURNING id,amount,type,category,note, created_at",[userId,amount,type,category,transactionNote]);
+        const categoryLowerCase = category.toLowerCase();
+        const result = await db.query(
+            "INSERT INTO transactions (user_id,amount,type,category,note) VALUES ($1,$2,$3,$4,$5) RETURNING id,amount,type,category,note, created_at",
+            [userId, amount, type, categoryLowerCase, transactionNote]
+        );
 
         res.status(201).json(result.rows[0]);
 
@@ -332,22 +335,7 @@ export const updateTransaction = async (req: express.Request, res: express.Respo
     }
 }
 
-export const getTransactionCategories = async (req: express.Request, res: express.Response)=>{
-    try{
-        const userId = req.userId;
-        const result = await db.query("SELECT DISTINCT category FROM transactions WHERE user_id = $1",[userId]);
-        if(result.rows.length===0){
-            res.status(404).json({message:"there arent any existing categories"});
-            return;
-        }
-        const categories = result.rows.map(row => row.category)
 
-        res.status(200).json(categories);
-    }catch(error){
-        console.log(error);
-        res.sendStatus(500);
-    }
-}
 
 
 export const getFinancePrediction = async (req: express.Request, res: express.Response)=>{
@@ -503,4 +491,51 @@ const predictionSummary= (balance:number,projectedData:any[]):FinancialPredictio
     };
     return summary;
 
+}
+
+
+export const getTransactionCategories = async (req: express.Request, res: express.Response)=>{
+    try{
+        const userId = req.userId;
+        const {search,items=5,type}=req.query;
+
+        const whereClause=[];
+        const values=[]
+        let paramIndex=1;
+        whereClause.push(`user_id = $${paramIndex} `);
+        values.push(userId);
+        paramIndex++;
+
+        if(search){
+            whereClause.push(`category LIKE $${paramIndex}`);
+            values.push(`%${search}%`);
+            paramIndex++;
+        }
+
+        if(type){
+            if(type==="income"||type==="expense"){
+                whereClause.push(`type = $${paramIndex}`);
+                values.push(type);
+                paramIndex++;
+            }else{
+                res.status(400).json({message:"type can only be income or expense!"});
+            }
+        }
+
+        const queryWhere=whereClause.join(' AND ');
+        values.push(items);
+
+        const query="Select category, count(*) as categoryNum from transactions WHERE "+ queryWhere+ ` group by category order by categoryNum desc limit $${paramIndex}`
+        const result = await db.query(query,values);
+        if(result.rows.length===0){
+            res.status(404).json({message:"there arent any existing categories"});
+            return;
+        }
+        const categories = result.rows.map(row => row.category)
+
+        res.status(200).json(categories);
+    }catch(error){
+        console.log(error);
+        res.sendStatus(500);
+    }
 }
