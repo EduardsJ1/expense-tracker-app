@@ -21,7 +21,7 @@ function Analytics(){
     return(
         <>
         <Navbar/>
-        <div className="pt-20 max-w-[1200px] m-auto">
+        <div className="pt-20 max-w-[1200px] m-auto px-5">
             <h1>Analytics</h1>
             <div className="">
                 <CashPrediciton predictionSummary={predictionSummary||null} months={months} onMonthsChange={(months)=>setMonths(months)}/>

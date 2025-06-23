@@ -29,6 +29,7 @@ function CashPrediciton({predictionSummary,months,onMonthsChange}:{predictionSum
         setMonths(e.target.value);
     }
     
+    const percentageChange = calculateProcentage(predictionSummary?.currentBalance||0, predictionSummary?.summary.finalBalance||0);
     return(
         <div className="border border-neutral-200 rounded-2xl bg-white shadow-xl px-5 py-2">
             <div className="flex justify-between items-center mb-10">
@@ -49,29 +50,32 @@ function CashPrediciton({predictionSummary,months,onMonthsChange}:{predictionSum
             </div>
             {predictionSummary ? (
             <div>
-                <div className="h-60">
+                <div className="h-60 px-5">
                     <PredictionChart data={predictionSummary.projectedData} />
                 </div>
                 <div className="flex gap-5 flex-wrap mt-5 mb-5">
                     <DataCard className="flex-1 min-w-65">
                         <DataCard.Title>Current Balance</DataCard.Title>
-                        <DataCard.Value className={` ${predictionSummary.currentBalance>0?"text-green-800":"text-red-800"}`}>$ {predictionSummary.currentBalance}</DataCard.Value>
+                        <DataCard.Value className={` ${predictionSummary.currentBalance>0?"text-green-800":"text-red-800"}`}>$ {predictionSummary.currentBalance.toFixed(2)}</DataCard.Value>
                     </DataCard>
 
                     <DataCard className="flex-1 min-w-65">
                         <DataCard.Title>Monthly Average Income</DataCard.Title>
-                        <DataCard.Value className="text-green-800">+$ {Math.round(predictionSummary.summary.monthlyAverageIncome)}</DataCard.Value>
+                        <DataCard.Value className="text-green-800">+$ {predictionSummary.summary.monthlyAverageIncome.toFixed(2)}</DataCard.Value>
                     </DataCard>
 
                     <DataCard className="flex-1 min-w-65">
                         <DataCard.Title>Monthly Average Expense</DataCard.Title>
-                        <DataCard.Value className="text-red-800">-$ {Math.round(predictionSummary.summary.monthlyAverageExpense)}</DataCard.Value>
+                        <DataCard.Value className="text-red-800">-$ {predictionSummary.summary.monthlyAverageExpense.toFixed(2)}</DataCard.Value>
                     </DataCard>
 
+                    
                     <DataCard className="flex-1 min-w-65">
-                        <DataCard.Title>Future Balance</DataCard.Title>
-                        <DataCard.Value className={`${predictionSummary.summary.finalBalance>0?"text-green-800":"text-red-800"}`}>$ {predictionSummary.summary.finalBalance}</DataCard.Value>
-                        <DataCard.Description>Balance in {months} months</DataCard.Description>
+                        <DataCard.Title>Future Balance<p className="text-sm text-neutral-500">in {months} months</p></DataCard.Title>
+                        <DataCard.Value className={`${predictionSummary.summary.finalBalance>0?"text-green-800":"text-red-800"}`}>$ {predictionSummary.summary.finalBalance.toFixed(2)}</DataCard.Value>
+                        <DataCard.Description className={`font-medium ${percentageChange >= 0 ? "text-green-600" : "text-red-600"}`}>
+                            {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(2)} %
+                        </DataCard.Description>
                     </DataCard>
                 </div>
             </div>
@@ -85,3 +89,22 @@ function CashPrediciton({predictionSummary,months,onMonthsChange}:{predictionSum
 }
 
 export default CashPrediciton;
+
+
+const calculateProcentage = (previousValue: number, currentValue: number): number => {
+    if (previousValue === 0) {
+        return currentValue >= 0 ? 100 : -100;
+    }
+    
+    const change = currentValue - previousValue;
+    
+    if (previousValue < 0) {
+        if (currentValue >= 0) {
+            return Math.abs((currentValue - previousValue) / Math.abs(previousValue)) * 100;
+        } else {
+            return (change / Math.abs(previousValue)) * 100;
+        }
+    } else {
+        return (change / previousValue) * 100;
+    }
+}
