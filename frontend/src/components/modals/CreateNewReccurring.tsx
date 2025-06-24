@@ -27,6 +27,7 @@ function NewReccurringModal(
     const [data,setData]=useState<CreateReccurringType>({user_id:0,type:"income",category:"",amount:0,note:null,recurrence_type:"daily",custom_interval:1,custom_unit:"hours",start_date:getDefaultStartDate(),is_active:true});
     const [errorCategory,setCategoryError]=useState(false);
     const [errorAmount,setAmountError]=useState(false);
+    const [amount,setAmount]=useState("");
     
     
     useEffect(() => {
@@ -85,6 +86,16 @@ function NewReccurringModal(
         }
     }
 
+
+      const handleAmount = (e:React.ChangeEvent<HTMLInputElement>)=>{
+        const value= e.target.value;
+        if (!/^\d*\.?\d*$/.test(value)) {
+            return;
+        }
+        setAmount(value);
+        setData(prev => ({ ...prev, amount:Number(value)}))
+    }
+
     return(
         <>
         <div className={`fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs `}>
@@ -108,11 +119,11 @@ function NewReccurringModal(
                     <div>
                         <label>Amount</label>
                         <input 
-                        onChange={e => setData(prev => ({ ...prev, amount: Number(e.target.value) }))}
-                        type="number"
-                        value={data.amount} 
+                        onChange={handleAmount}
+                        type="text"
+                        value={amount} 
                         className={`w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border rounded-md px-3 py-2 transition duration-300 ease focus:outline-none  shadow-sm focus:shadow ${errorAmount?"border-red-300 focus:border-red-400":"border-slate-200 focus:border-slate-400 hover:border-slate-300"}`}/>
-                        <div className="text-red-400 h-5 pl-1">{errorAmount&&"Amount cant be 0 or less than 0!"}</div>
+                        <div className="text-red-400 h-5 pl-1">{errorAmount&&"Amount cant be empty!"}</div>
                     </div>
                     <div>
                         <label>Description (Optional)</label>

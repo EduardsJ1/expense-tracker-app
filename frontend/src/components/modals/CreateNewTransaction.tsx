@@ -11,6 +11,7 @@ function NewTransactionModal(
 
     const {user}=useAuth();
     const [data,setData]=useState<createTransactionType>({user_id:0,type:"income",category:"",amount:0,note:""});
+    const [amount,setAmount]=useState("");
     const [errorCategory,setCategoryError]=useState(false);
     const [errorAmount,setAmountError]=useState(false);
     
@@ -31,12 +32,22 @@ function NewTransactionModal(
         }
     }, [transactionToEdit,user]);
 
+    const handleAmount = (e:React.ChangeEvent<HTMLInputElement>)=>{
+        const value= e.target.value;
+        if (!/^\d*\.?\d*$/.test(value)) {
+            return;
+        }
+        setAmount(value);
+        setData(prev => ({ ...prev, amount:Number(value)}))
+    }
+
+
     if(!display) return null;
     const handleSumbit=(e:React.FormEvent)=>{
         e.preventDefault();
         const isCategoryInvalid = !data.category || data.category === "";
         const isAmountInvalid = !data.amount || data.amount <= 0;
-        console.log("submitting with this category",data.category);
+        //console.log("submitting with this category",data.category);
         setCategoryError(isCategoryInvalid);
         setAmountError(isAmountInvalid);
 
@@ -111,11 +122,11 @@ function NewTransactionModal(
                     <div>
                         <label>Amount</label>
                         <input 
-                        onChange={e => setData(prev => ({ ...prev, amount: Number(e.target.value) }))}
+                        onChange={handleAmount}
                         type="text"
-                        value={data.amount} 
+                        value={amount} 
                         className={`w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border rounded-md px-3 py-2 transition duration-300 ease focus:outline-none  shadow-sm focus:shadow ${errorAmount?"border-red-300 focus:border-red-400":"border-slate-200 focus:border-slate-400 hover:border-slate-300"}`}/>
-                        <div className="text-red-400 h-5 pl-1">{errorAmount&&"Amount cant be 0 or less than 0!"}</div>
+                        <div className="text-red-400 h-5 pl-1">{errorAmount&&"Amount cant be empty!"}</div>
                     </div>
                     <div>
                         <label>Description</label>
