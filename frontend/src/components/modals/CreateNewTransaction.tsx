@@ -2,6 +2,7 @@ import { useState,useEffect } from "react";
 import {createTransaction,updateTransaction} from "../../api/transactions";
 import type {createTransactionType,Transaction} from "../../types/transactions";
 import { useAuth } from "../../hooks/useAuth";
+import CategoryInput from "../ui/CategoryInput";
 
 function NewTransactionModal(
     {display,closeModal,onTransactionCreate,transactionToEdit}:
@@ -35,7 +36,7 @@ function NewTransactionModal(
         e.preventDefault();
         const isCategoryInvalid = !data.category || data.category === "";
         const isAmountInvalid = !data.amount || data.amount <= 0;
-
+        console.log("submitting with this category",data.category);
         setCategoryError(isCategoryInvalid);
         setAmountError(isAmountInvalid);
 
@@ -104,12 +105,7 @@ function NewTransactionModal(
 
                     <div>
                         <label className="pl-1">Category</label>
-                        <input
-                            onChange={e => setData(prev => ({ ...prev, category: e.target.value }))}
-                            type="text"
-                            value={data.category}
-                            className={`w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border rounded-md px-3 py-2 transition duration-300 ease focus:outline-none  shadow-sm focus:shadow ${errorCategory?"border-red-300 focus:border-red-400":"border-slate-200 focus:border-slate-400 hover:border-slate-300"}`}
-                        />
+                        <CategoryInput onChange={(value)=>setData(prev=>({...prev,category:value}))}/>
                         <div className="text-red-400 h-5 pl-1">{errorCategory&&"Category cant be empty!"}</div>
                     </div>
                     <div>

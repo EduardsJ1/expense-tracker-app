@@ -21,7 +21,7 @@ export const getTransactions = (
         search?:string,
         hasNote?:boolean
     })=> 
-    API.get<TransactionData>("/transactions",{params});
+API.get<TransactionData>("/transactions",{params});
 
 
 export const getSingleTransaction = async (id:number)=>{
@@ -47,4 +47,15 @@ export const deleteTransaction = async (id:number)=>{
     const response = await API.delete(`/transactions/${id}`);
     return response;
 }
-///delete patch ect
+
+
+export interface CategoryFilters{
+    search?:string,
+    items?:number,
+    type?:"income"|"expense"
+}
+
+export const getTransactionCategories= async (filters?:CategoryFilters)=>{
+    const response = await API.get<string[]>(`/transactions/categories`, { params: filters });
+    return response.data;
+}

@@ -528,12 +528,22 @@ export const getTransactionCategories = async (req: express.Request, res: expres
         const query="Select category, count(*) as categoryNum from transactions WHERE "+ queryWhere+ ` group by category order by categoryNum desc limit $${paramIndex}`
         const result = await db.query(query,values);
         if(result.rows.length===0){
-            res.status(404).json({message:"there arent any existing categories"});
+            res.status(200).json({message:"there arent any existing categories"});
             return;
         }
         const categories = result.rows.map(row => row.category)
 
         res.status(200).json(categories);
+    }catch(error){
+        console.log(error);
+        res.sendStatus(500);
+    }
+}
+
+export const getCategorySummary=async (req:express.Request,res:express.Response)=>{
+    try{
+        const userId= req.userId;
+        const {months,items,type}= req.query;
     }catch(error){
         console.log(error);
         res.sendStatus(500);
