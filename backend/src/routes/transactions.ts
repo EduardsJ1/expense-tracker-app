@@ -1,11 +1,13 @@
 import express from 'express';
 import { isAuthenticated } from '../middlewere';
-import {createTransaction, getTransactions, getTransaction, getTransactionsSummary, deleteTransaction, updateTransaction, getTransactionCategories, getFinancePrediction} from '../controllers/transactions';
+import {createTransaction, getTransactions, getTransaction, getTransactionsSummary, deleteTransaction, updateTransaction, getTransactionCategories, getFinancePrediction, getCategorySummary} from '../controllers/transactions';
 
 const router = express.Router();
 
 router.post('/transactions',isAuthenticated, createTransaction);
 router.get('/transactions', isAuthenticated, getTransactions);
+
+router.get('/transactions/summary/categories',isAuthenticated,getCategorySummary)
 router.get('/transactions/summary', isAuthenticated, getTransactionsSummary);
 router.get('/transactions/categories', isAuthenticated, getTransactionCategories);
 router.get('/transactions/prediction',isAuthenticated,getFinancePrediction);

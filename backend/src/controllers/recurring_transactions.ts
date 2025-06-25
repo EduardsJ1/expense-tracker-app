@@ -325,7 +325,8 @@ export const updateRecurring = async (req:express.Request, res:express.Response)
         }
         const query: string[] = [];
         const values: any[]=[];
-        let paramCount = 0;        const addQuery=(field:string,value:any)=>{
+        let paramCount = 0;        
+        const addQuery=(field:string,value:any)=>{
             if(value!==undefined){
                 paramCount++;
                 query.push(`${field} = $${paramCount}`);

@@ -543,9 +543,177 @@ export const getTransactionCategories = async (req: express.Request, res: expres
 export const getCategorySummary=async (req:express.Request,res:express.Response)=>{
     try{
         const userId= req.userId;
-        const {months,items,type}= req.query;
+        const {
+            startDate, //include categories from startDate (iso format)
+            endDate, // include categories till endDate (iso format)
+            type, // only show categories that are "income" or "expense"
+            sortBy, // sort by totalAmount or count or category
+            orderBy, // order by asc or desc
+            limit = 5, // limit number (or "all") of categories (if limit is 5 then will show 4 categories and other as the rest in total) if all then will show all
+        }= req.query;
+
+        const whereClause: string[] = [];
+        const values:any[] = [];
+        let paramIndex=0;
+
+        const addQuery=(field:string,value:any)=>{
+            if(value!==undefined){
+                paramIndex++;
+                whereClause.push(`${field} $${paramIndex}`);
+                values.push(value);
+            }
+        };
+
+        addQuery('user_id = ',userId);//add user to where clause
+
+        if(type){
+            
+            if(["income","expense"].includes(type as string)){
+                addQuery('type = ',type);
+            }else{
+                res.status(400).json({message: "type can only be income or expense"});
+                return;
+            }
+        }
+
+        
+        if (startDate) {
+            // Check if ISO format (YYYY-MM-DD)
+            const isoRegex = /^\d{4}-\d{2}-\d{2}$/;
+            const altRegex = /^\d{2}-\d{2}-\d{4}$/; // DD-MM-YYYY
+
+            if (isoRegex.test(startDate as string)) {
+            addQuery('created_at >= ', startDate);
+            } else if (altRegex.test(startDate as string)) {
+            // Convert DD-MM-YYYY to YYYY-MM-DD
+            const [day, month, year] = (startDate as string).split('-');
+            addQuery('created_at >= ', `${year}-${month}-${day}`);
+            } else {
+            res.status(400).json({ message: "Invalid startDate format. Use YYYY-MM-DD or DD-MM-YYYY." });
+            return;
+            }
+        }
+
+        if (endDate) {
+            const isoRegex = /^\d{4}-\d{2}-\d{2}$/;
+            const altRegex = /^\d{2}-\d{2}-\d{4}$/; // DD-MM-YYYY
+
+            if (isoRegex.test(endDate as string)) {
+            addQuery('created_at <= ', endDate);
+            } else if (altRegex.test(endDate as string)) {
+            const [day, month, year] = (endDate as string).split('-');
+            addQuery('created_at <= ', `${year}-${month}-${day}`);
+            } else {
+            res.status(400).json({ message: "Invalid endDate format. Use YYYY-MM-DD or DD-MM-YYYY." });
+            return;
+            }
+        }
+
+        const orderByClause=[];
+
+        if(sortBy){
+            if(["totalAmount","count","category"].includes(sortBy as string)){
+                orderByClause.push(` ${sortBy} `)
+            }else{
+                res.status(400).json({message:"sortby can only contain totalAmount, count or category"})
+                return;
+            }
+        }else{
+            orderByClause.push(' totalAmount ');
+        }
+
+        if(orderBy){
+            if(["asc","desc"].includes((orderBy as string).toLocaleLowerCase())){
+                orderByClause.push(` ${orderBy}`)
+            }else{
+                res.status(400).json({message: "orderBy clause can only contain asc or desc"});
+                return;
+            }
+        }else{
+            orderByClause.push(' desc');
+        }
+
+        if (limit && isNaN(Number(limit)) && (typeof limit !== "string" || limit.toLowerCase() !== "all")) {
+            res.status(400).json({message:`limit has to be a number or "all"`});
+            return;
+        }
+
+        const builtOrderByClause = orderByClause.join(" ");
+        const bultWhereClause = whereClause.join(' AND ');
+        const query = `select category, sum(amount) as totalAmount, count(category) as count from transactions where ${bultWhereClause} group by category order by ${builtOrderByClause}`;
+
+        const result = await db.query(query,values);
+
+        let newLimit;
+        if (typeof limit === "string" && limit.toLowerCase() === "all") {
+            newLimit = result.rows.length;
+        } else if (limit === "" || limit === undefined) {
+            newLimit = 5;
+        } else {
+            newLimit = limit;
+        }
+        const formatedResult = formatCategorySummary(result.rows, Number(newLimit));
+
+        res.status(200).json(formatedResult);
+
+
     }catch(error){
         console.log(error);
         res.sendStatus(500);
     }
+}
+
+interface categoryDbResult{
+    category:string,
+    totalamount:string,
+    count:string,
+}
+
+interface categorySummary{
+    category:string,
+    totalamount:number,
+    count:number,
+    precentage:number
+}
+
+const formatCategorySummary= (categoryData:categoryDbResult[],limit:number):categorySummary[] =>{
+    let totalAmount = 0;
+    const categoryResult: categorySummary[] = [];
+
+    for (const category of categoryData) {
+        totalAmount += Number(category.totalamount);
+    }
+
+    let otherTotalAmount = 0;
+    let otherCount = 0;
+
+    if(limit===categoryData.length){//if limit is the same as the data amount it wont add "other" category
+        limit++;
+    }
+
+    for (let i = 0; i < categoryData.length; i++) {
+        const cat = categoryData[i];
+        if (i < limit - 1) { // if its not last add to categorys
+            categoryResult.push({
+                category: cat.category,
+                totalamount: Number(cat.totalamount),
+                count: Number(cat.count),
+                precentage: totalAmount > 0 ? (Number(cat.totalamount) / totalAmount) * 100 : 0
+            });
+        } else { // if its over limit calculate the rest of category data
+            otherTotalAmount += Number(cat.totalamount);
+            otherCount += Number(cat.count);
+        }
+    }
+
+    if (categoryData.length > limit - 1) { // create the last category
+        categoryResult.push({
+            category: "other",
+            totalamount: otherTotalAmount,
+            count: otherCount,
+            precentage: totalAmount > 0 ? (otherTotalAmount / totalAmount) * 100 : 0
+        });
+    }
+
+    return categoryResult;
 }
