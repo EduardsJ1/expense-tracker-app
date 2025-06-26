@@ -5,7 +5,7 @@ import firstCharToUpperCase from "../utils/firstCharToUpperCase";
 const getCurrentMonthFilters = () => {
     const currentDate = new Date();
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0];
-    return { startDate: startOfMonth };
+    return { startDate: startOfMonth,type: "expense" as const };
 };
 
 const CURRENT_MONTH_FILTERS = getCurrentMonthFilters();
