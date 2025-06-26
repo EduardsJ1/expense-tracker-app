@@ -21,7 +21,7 @@ function CategoryExpenseStats({style}:{style:string}){
                 <h2 className="text-2xl font-medium">Top Categories</h2>
                 <p className="text-neutral-500">Where your money goes this month</p>
             </div>
-            <div className="flex flex-col justify-between flex-1 h-0 px-4">
+            <div className="flex flex-col gap-3 flex-1 h-0 px-4">
                 {categoryData.map((stat)=>(
                     <div key={stat.category}>
                         <div className="flex justify-between">
