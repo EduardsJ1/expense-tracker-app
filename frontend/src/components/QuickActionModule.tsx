@@ -1,8 +1,8 @@
 
 
-function QuickActions({AddTransaction,AddRecurring}:{AddTransaction:()=>void;AddRecurring:()=>void}){
+function QuickActions({AddTransaction,AddRecurring,styles}:{AddTransaction:()=>void;AddRecurring:()=>void; styles?:string}){
     return(
-        <div className="bg-white rounded-2xl w-2xs shadow-xl">
+        <div className={`bg-white rounded-2xl w-2xs shadow-xl ${styles}`}>
             <div className="px-4 pt-4 mb-3">
                 <h2 className="text-2xl font-medium">Quick Add</h2>
                 <p className="text-neutral-500">Quickly add new transactions or reacurring</p>

@@ -3,9 +3,9 @@ import type {Transaction} from "../types/transactions";
 import {getRelativeDayLabel} from "../utils/formatDate";
 
 
-function RecentTransactions({ data }: { data?: Transaction[] }){
+function RecentTransactions({ data, style }: { data?: Transaction[], style?:string }){
     return(
-        <div className="bg-white rounded-2xl w-2xs shadow-xl pb-5">
+        <div className={`bg-white rounded-2xl w-2xs shadow-xl pb-5 ${style}`}>
             <div className="px-4 pt-4 mb-3">
                 <h2 className="text-2xl font-medium">Recent Transactions</h2>
                 <p className="text-neutral-500">Your latest created Transactions</p>
