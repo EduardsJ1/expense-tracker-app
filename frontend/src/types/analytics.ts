@@ -20,3 +20,10 @@ export interface PredictionSummary {
     projectedData: ProjectedDataPoint[];
     summary: PredictionSummaryStats;
 }
+
+export interface CategorySummary{
+    category:string,
+    totalamount:number,
+    count:number,
+    precentage:number
+}

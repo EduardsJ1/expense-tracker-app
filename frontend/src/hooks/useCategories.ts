@@ -2,6 +2,10 @@
 import { useEffect, useState } from 'react';
 import type {CategoryFilters} from '../api/transactions';
 import {getTransactionCategories} from '../api/transactions';
+import type {CategorySummaryFilters} from "../api/analytics";
+import type {CategorySummary} from "../types/analytics";
+import { getCategorySummary } from '../api/analytics';
+
 
 export const useCategorySuggestions=(filters?:CategoryFilters)=>{
     const [categories,setCategories]=useState<string[]>([]);
@@ -28,3 +32,28 @@ export const useCategorySuggestions=(filters?:CategoryFilters)=>{
     return {categories,loading,error}
 }
 
+export const useCategorySummary=(filters?:CategorySummaryFilters)=>{
+    const [categoryData, setCategoryData] = useState<CategorySummary[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error,setError]= useState<string|null>(null);
+
+    useEffect(()=>{
+        const fetchCategoryData= async ()=>{
+            setLoading(true);
+            setError(null);
+            try{
+                const data = await getCategorySummary(filters);
+                setCategoryData(data);
+            }catch(error){
+                console.log(error);
+                setError(error instanceof Error ? error.message:"Failed to get Category Data");
+            }finally{
+                setLoading(false);
+            }
+        }
+
+        fetchCategoryData();
+    },[filters]);
+
+    return {categoryData,loading,error}
+}
