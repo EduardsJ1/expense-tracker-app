@@ -85,7 +85,7 @@ function Navbar(){
                 <div className="flex items-center space-x-4">
                     {user ? (
                         <>
-                            <span className="hidden sm:inline text-gray-600">Welcome, {user.name}</span>
+                            <span className="hidden lg:inline text-gray-600">Welcome, {user.name}</span>
                             <button 
                                 onClick={logoutUser} 
                                 className="hidden lg:block bg-white text-black font-semibold border px-4 py-2 rounded hover:bg-neutral-200 cursor-pointer"
