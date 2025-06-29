@@ -30,7 +30,7 @@ function ReccuringTransactionsTable(
                     <p className="text-base mt-1 text-neutral-500">Manage your automatic transactions</p>
                 </div>
                 <div>
-                    <button onClick={()=>openReccuringModal()} className="bg-green-600 text-white rounded-xl px-4 py-1 font-medium cursor-pointer hover:bg-green-700">Add Reccurring</button>
+                    <button onClick={()=>openReccuringModal(undefined)} className="bg-green-600 text-white rounded-xl px-4 py-1 font-medium cursor-pointer hover:bg-green-700">Add Reccurring</button>
                 </div>
             </div>
 

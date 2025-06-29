@@ -36,6 +36,7 @@ function TransactionsPage(){
         setDeleteDisplay(true);
     }
     const handleNewTransaction=()=>{
+        setTransaction(null);
         setModalDisplay(true);
     }
     const handleEditTransaction=(transaction:Transaction)=>{

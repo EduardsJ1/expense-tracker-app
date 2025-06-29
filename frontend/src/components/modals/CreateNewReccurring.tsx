@@ -39,7 +39,7 @@ function NewReccurringModal(
                 user_id:user?.id||0,
                 type:ReccuringToEdit.type,
                 category:ReccuringToEdit.category,
-                amount:ReccuringToEdit.amount,
+                amount:Number(ReccuringToEdit.amount),
                 note:ReccuringToEdit.note,
                 recurrence_type:ReccuringToEdit.recurrence_type,
                 custom_unit:ReccuringToEdit.custom_unit,
@@ -47,8 +47,10 @@ function NewReccurringModal(
                 start_date:ReccuringToEdit.start_date,
                 is_active:ReccuringToEdit.is_active
             })
+            setAmount(ReccuringToEdit.amount.toString());
         }else{
             setData({user_id: user?.id ?? 0,type:"income",category:"",amount:0,note:null,recurrence_type:"daily",custom_interval:1,custom_unit:"hours",start_date:getDefaultStartDate(),is_active:true});
+            setAmount("");
         }
     }, [ReccuringToEdit,user]);
 
@@ -113,7 +115,7 @@ function NewReccurringModal(
 
                     <div>
                         <label className="pl-1">Category</label>
-                        <CategoryInput onChange={(value)=>setData((prev)=>({...prev,category:value}))}/>
+                        <CategoryInput value={data.category} onChange={(value)=>setData((prev)=>({...prev,category:value}))}/>
                         <div className="text-red-400 h-5 pl-1">{errorCategory&&"Category cant be empty!"}</div>
                     </div>
                     <div>

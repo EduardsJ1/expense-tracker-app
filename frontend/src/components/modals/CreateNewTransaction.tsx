@@ -27,8 +27,10 @@ function NewTransactionModal(
                 amount:transactionToEdit.amount,
                 note:transactionToEdit.note
             })
+            setAmount(transactionToEdit.amount.toString());
         }else{
             setData({ user_id: user?.id ?? 0, type: "income", category: "", amount: 0, note: "" });
+            setAmount("");
         }
     }, [transactionToEdit,user]);
 
@@ -116,7 +118,7 @@ function NewTransactionModal(
 
                     <div>
                         <label className="pl-1">Category</label>
-                        <CategoryInput onChange={(value)=>setData(prev=>({...prev,category:value}))}/>
+                        <CategoryInput value={data.category} onChange={(value)=>setData(prev=>({...prev,category:value}))}/>
                         <div className="text-red-400 h-5 pl-1">{errorCategory&&"Category cant be empty!"}</div>
                     </div>
                     <div>
