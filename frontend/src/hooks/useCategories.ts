@@ -53,7 +53,12 @@ export const useCategorySummary=(filters?:CategorySummaryFilters)=>{
         }
 
         fetchCategoryData();
-    },[filters]);
+    },[filters?.startDate,
+        filters?.endDate,
+        filters?.type,
+        filters?.sortBy,
+        filters?.orderBy,
+        filters?.limit]);
 
     return {categoryData,loading,error}
 }

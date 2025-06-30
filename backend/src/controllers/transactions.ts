@@ -578,34 +578,48 @@ export const getCategorySummary=async (req:express.Request,res:express.Response)
 
         
         if (startDate) {
-            // Check if ISO format (YYYY-MM-DD)
-            const isoRegex = /^\d{4}-\d{2}-\d{2}$/;
+            // Check different formats
+            const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD
+            const isoDateTimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/; // ISO datetime
             const altRegex = /^\d{2}-\d{2}-\d{4}$/; // DD-MM-YYYY
 
-            if (isoRegex.test(startDate as string)) {
-            addQuery('created_at >= ', startDate);
+            if (isoDateRegex.test(startDate as string)) {
+                // Simple date format: 2025-05-31
+                addQuery('created_at >= ', startDate);
+            } else if (isoDateTimeRegex.test(startDate as string)) {
+                // Full ISO datetime format: 2025-05-31T21:00:00.000Z
+                const dateOnly = (startDate as string).split('T')[0];
+                addQuery('created_at >= ', dateOnly);
             } else if (altRegex.test(startDate as string)) {
-            // Convert DD-MM-YYYY to YYYY-MM-DD
-            const [day, month, year] = (startDate as string).split('-');
-            addQuery('created_at >= ', `${year}-${month}-${day}`);
+                // Convert DD-MM-YYYY to YYYY-MM-DD
+                const [day, month, year] = (startDate as string).split('-');
+                addQuery('created_at >= ', `${year}-${month}-${day}`);
             } else {
-            res.status(400).json({ message: "Invalid startDate format. Use YYYY-MM-DD or DD-MM-YYYY." });
-            return;
+                res.status(400).json({ 
+                    message: "Invalid startDate format. Use YYYY-MM-DD, DD-MM-YYYY, or ISO datetime (2025-05-31T21:00:00.000Z)." 
+                });
+                return;
             }
         }
 
         if (endDate) {
-            const isoRegex = /^\d{4}-\d{2}-\d{2}$/;
-            const altRegex = /^\d{2}-\d{2}-\d{4}$/; // DD-MM-YYYY
+            const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            const isoDateTimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/;
+            const altRegex = /^\d{2}-\d{2}-\d{4}$/;
 
-            if (isoRegex.test(endDate as string)) {
-            addQuery('created_at <= ', endDate);
+            if (isoDateRegex.test(endDate as string)) {
+                addQuery('created_at <= ', endDate);
+            } else if (isoDateTimeRegex.test(endDate as string)) {
+                const dateOnly = (endDate as string).split('T')[0];
+                addQuery('created_at <= ', dateOnly);
             } else if (altRegex.test(endDate as string)) {
-            const [day, month, year] = (endDate as string).split('-');
-            addQuery('created_at <= ', `${year}-${month}-${day}`);
+                const [day, month, year] = (endDate as string).split('-');
+                addQuery('created_at <= ', `${year}-${month}-${day}`);
             } else {
-            res.status(400).json({ message: "Invalid endDate format. Use YYYY-MM-DD or DD-MM-YYYY." });
-            return;
+                res.status(400).json({ 
+                    message: "Invalid endDate format. Use YYYY-MM-DD, DD-MM-YYYY, or ISO datetime (2025-05-31T21:00:00.000Z)." 
+                });
+                return;
             }
         }
 
