@@ -1,14 +1,8 @@
-import axios from "axios";
 import type {PredictionSummary,CategorySummary} from "../types/analytics";
-
-
-const API = axios.create({
-    baseURL: "http://localhost:8000",
-    withCredentials:true
-});
+import api from ".";
 
 export const getFinancePrediction = async (params?:{months:number}) =>{
-    const response = await API.get<PredictionSummary>("/transactions/prediction",{params:params});
+    const response = await api.get<PredictionSummary>("/transactions/prediction",{params:params});
     //console.log(response.data);
     return response.data;
 }
@@ -26,6 +20,6 @@ export interface CategorySummaryFilters{
 
 
 export const getCategorySummary = async (filters?:CategorySummaryFilters)=>{
-    const response = await API.get<CategorySummary[]>(`/transactions/summary/categories`,{params:filters});
+    const response = await api.get<CategorySummary[]>(`/transactions/summary/categories`,{params:filters});
     return response.data;
 }

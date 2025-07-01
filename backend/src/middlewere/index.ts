@@ -12,7 +12,7 @@ export const isAuthenticated = (req:express.Request, res:express.Response, next:
     const sessionToken = req.cookies['token'];
 
     if(!sessionToken){
-        res.status(403).json({message:"session token not included"});
+        res.status(401).json({message:"session token not included"});
         return;
     }
 

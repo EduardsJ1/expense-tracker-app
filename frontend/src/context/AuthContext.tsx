@@ -3,8 +3,7 @@ import { createContext,useState,useEffect } from "react";
 import {getCurrentUser,login,logout,register} from "../api/auth";
 import type {User} from "../types/User";
 import type {ReactNode} from 'react';
-import Cookies from "js-cookie";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 interface AuthContextType {
@@ -19,8 +18,20 @@ export const AuthContext = createContext<AuthContextType>({}as AuthContextType);
 
 export const AuthProvider = ({children}:{children:ReactNode})=>{
     const [user,setUser] = useState<User | null>(null);
-    
-    
+    const navigate = useNavigate();
+
+
+    useEffect(()=>{
+        const handleSessionExpired = ()=>{
+            console.log("Session Expired");
+            setUser(null);
+            navigate('/login');
+        }
+
+        window.addEventListener('session-expired',handleSessionExpired);
+        return () => window.removeEventListener('session-expired',handleSessionExpired);
+    },[navigate])
+
     useEffect(()=>{
        
         getCurrentUser()
