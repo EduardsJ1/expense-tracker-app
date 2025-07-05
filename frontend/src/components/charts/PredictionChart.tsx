@@ -39,7 +39,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 
 
-function PredictionChart({data}:{data:ProjectedDataPoint[]}){
+function PredictionChart({data,dataKey,colors}:{data:any[],dataKey:string[],colors?:string[]}){
    const formatedData = data.map((item) => ({ ...item, date: DateToMonth(item.date) }));
     return(
         <div className="w-full h-full">
@@ -49,9 +49,9 @@ function PredictionChart({data}:{data:ProjectedDataPoint[]}){
                     <YAxis/>
                     <Tooltip content={<CustomTooltip/>}/>
                     <Legend/>
-                    <Area type="monotone" dataKey="income" stroke='#1f6e2c' fill='#34ba4a'/>
-                    <Area type="monotone" dataKey="expense" stroke='#630d0d' opacity={1} fill='#f74545'/>
-                    <Line type="linear"  dataKey="balance" stroke='#000000' dot={false} strokeWidth={2}/>
+                    {dataKey.map((dataItem, index)=>(
+                        <Line type="monotone" dataKey={dataItem} stroke={colors?.[index]||'#000000'} strokeWidth={2}/>
+                    ))}
                     <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" strokeWidth={2}/>
                 </ComposedChart>
             </ResponsiveContainer>
