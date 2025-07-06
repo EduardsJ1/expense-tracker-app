@@ -25,7 +25,7 @@ export const AuthProvider = ({children}:{children:ReactNode})=>{
         const handleSessionExpired = ()=>{
             console.log("Session Expired");
             setUser(null);
-            navigate('/login');
+            navigate('/');
         }
 
         window.addEventListener('session-expired',handleSessionExpired);
