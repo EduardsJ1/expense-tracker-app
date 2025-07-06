@@ -51,7 +51,7 @@ function CashPrediciton({predictionSummary,months,onMonthsChange}:{predictionSum
             {predictionSummary ? (
             <div>
                 <div className="h-60 px-5">
-                    <PredictionChart data={predictionSummary.projectedData} dataKey={["income","expense","balance"]} colors={["#1f6e2c","#630d0d"]} />
+                    <PredictionChart data={predictionSummary.projectedData} dataKey={["income","expense","balance"]} colors={["#1f6e2c","#630d0d"]} xLabelKey="date" dateKey="date"/>
                 </div>
                 <div className="flex gap-5 flex-wrap mt-5 mb-5">
                     <DataCard className="flex-1 min-w-65">

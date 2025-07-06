@@ -180,11 +180,67 @@ export const getTransaction = async (req:express.Request, res: express.Response)
     }
 }
 
+function fillMissingPeriods(data:any[],groupBy:string,from?:string,to?:string){
+    if(data.length===0){
+        return data;
+    }
+
+    const startDate = from ? new Date(from): new Date(data[0].period);
+    const endDate = to ? new Date(to): new Date(data[data.length-1].period);
+
+    const dataMap = new Map();
+    data.forEach(row =>{
+        const key = new Date(row.period).toISOString();
+        dataMap.set(key,row);
+    })
+
+    const completeData = [];
+    const current = new Date(startDate);
+
+    while(current<=endDate){
+        let periodStart: Date;
+
+        if (groupBy === 'month') {
+            periodStart = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), 1));
+        } else if (groupBy === 'year') {
+            periodStart = new Date(Date.UTC(current.getUTCFullYear(), 0, 1));
+        } else if (groupBy === 'day') {
+            periodStart = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), current.getUTCDate()));
+        } else {
+            periodStart = new Date(current);
+        }
+
+        const key = periodStart.toISOString();
+
+        if (dataMap.has(key)) {
+            completeData.push(dataMap.get(key));
+        } else {
+            completeData.push({
+                period: periodStart.toISOString(),
+                total_income: 0,
+                total_expense: 0,
+                balance: 0
+            });
+        }
+
+        if (groupBy === 'month') {
+            current.setUTCMonth(current.getUTCMonth() + 1);
+        } else if (groupBy === 'year') {
+            current.setUTCFullYear(current.getUTCFullYear() + 1);
+        } else if (groupBy === 'day') {
+            current.setUTCDate(current.getUTCDate() + 1);
+        }
+    }
+
+    return completeData;
+}
+
+
 export const getTransactionsSummary = async (req: express.Request, res: express.Response)=>{
     try{
         const userId = req.userId;
         const {
-            groupBy, //adds group by "category" or "year" or "month" or "day"
+            groupBy, //adds group by "year" or "month" or "day"
             from, // date from YYYY-MM-DD
             to, // date to YYYY-MM-DD
         } = req.query;
@@ -207,16 +263,10 @@ export const getTransactionsSummary = async (req: express.Request, res: express.
             paramIndex++;
         }
 
-        if(groupBy && ['category','year','month','day'].includes(groupBy as string)){//needs to be last of conditions
-            if (groupBy === 'category') {
-                selectClause = 'category,';
-                groupByClause = 'GROUP BY category';
-                orderByClause = 'ORDER BY category';
-            } else {
+        if(groupBy && ['year','month','day'].includes(groupBy as string)){//needs to be last of conditions
                 selectClause = `DATE_TRUNC('${groupBy}', created_at) as period,`;
                 groupByClause = `GROUP BY DATE_TRUNC('${groupBy}', created_at)`;
-                orderByClause = 'ORDER BY period DESC';
-            }
+                orderByClause = 'ORDER BY period ASC';
         }
 
         const whereClause = conditions.join(' AND ');
@@ -232,19 +282,27 @@ export const getTransactionsSummary = async (req: express.Request, res: express.
         const result = await db.query(query,values);
 
         if(groupBy && result.rows.length>0){
-            const groupedData = result.rows.map(row =>({
-                [groupBy === 'category' ? 'category' : 'period']: row[groupBy === 'category' ? 'category' : 'period'],
+            let cumulativeBalance = 0;
+
+            const filledData = fillMissingPeriods(result.rows,groupBy as string,from as string,to as string);
+
+            const groupedData = filledData.map((row,index) =>{
+                const currentPeriodBalance = parseFloat(row.balance)||0;
+                cumulativeBalance+=currentPeriodBalance
+                return {
+                period: row['period'],
                 income: parseFloat(row.total_income) || 0,
                 expense: parseFloat(row.total_expense) || 0,
-                balance: parseFloat(row.balance) || 0
-            }));
+                balance: cumulativeBalance
+                }
+            });
 
             res.status(200).json({
                 groupBy: groupBy,
                 data: groupedData,
                 totalIncome: groupedData.reduce((sum, item) => sum + item.income, 0),
                 totalExpense: groupedData.reduce((sum, item) => sum + item.expense, 0),
-                totalBalance: groupedData.reduce((sum, item) => sum + item.balance, 0)
+                totalBalance: groupedData.length > 0 ? groupedData[groupedData.length - 1].balance : 0,
             });
         }else{
             const row = result.rows[0] || { total_income: 0, total_expense: 0 };

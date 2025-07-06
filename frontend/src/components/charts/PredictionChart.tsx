@@ -1,6 +1,6 @@
 import {ComposedChart, Tooltip, XAxis, YAxis, Area, Line,ResponsiveContainer, ReferenceLine, Legend} from 'recharts';
-import type {ProjectedDataPoint} from "../../types/analytics"
-import { DateToMonth } from '../../utils/formatDate';
+import { DateToMonth, DateToDay } from '../../utils/formatDate';
+
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -39,18 +39,44 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 
 
-function PredictionChart({data,dataKey,colors}:{data:any[],dataKey:string[],colors?:string[]}){
-   const formatedData = data.map((item) => ({ ...item, date: DateToMonth(item.date) }));
+function PredictionChart({data,dataKey,xLabelKey,dateFormat="month",dateKey,colors}:
+    {data:any[],
+    dataKey:string[],
+    xLabelKey:"date"|"period"|string ,
+    dateFormat?:"month"|"day",
+    dateKey?:"date"|"period",
+    colors?:string[]}){
+
+   let formatedData;
+   if(dateFormat==="month"){
+        if(dateKey==="date"){
+            formatedData= data.map((item) => ({ ...item, date: DateToMonth(item.date) }));
+        }else if(dateKey="period"){
+            formatedData= data.map((item) => ({ ...item, period: DateToMonth(item.period) }));
+        }else{
+            formatedData = data;
+        }
+    }else if(dateFormat==="day"){
+        if(dateKey==="date"){
+            formatedData= data.map((item) => ({ ...item, date: DateToDay(item.date, true) }));
+        }else if(dateKey="period"){
+            formatedData= data.map((item) => ({ ...item, period: DateToDay(item.period, true) }));
+        }else{
+            formatedData = data;
+        }
+    }else{
+        formatedData = data;
+    }
     return(
         <div className="w-full h-full">
             <ResponsiveContainer>
                 <ComposedChart data={formatedData} width={500} height={400}>
-                    <XAxis dataKey="date"/>
+                    <XAxis dataKey={xLabelKey}/>
                     <YAxis/>
                     <Tooltip content={<CustomTooltip/>}/>
                     <Legend/>
                     {dataKey.map((dataItem, index)=>(
-                        <Line type="monotone" dataKey={dataItem} stroke={colors?.[index]||'#000000'} strokeWidth={2}/>
+                        <Line type="monotone" dataKey={dataItem} dot={false} stroke={colors?.[index]||'#000000'} strokeWidth={2}/>
                     ))}
                     <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" strokeWidth={2}/>
                 </ComposedChart>

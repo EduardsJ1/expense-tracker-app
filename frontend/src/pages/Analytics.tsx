@@ -7,6 +7,7 @@ import PieChart from "../components/charts/PieChart";
 import useAnalytics from "../hooks/useAnalytics";
 import { useCategorySummary } from "../hooks/useCategories";
 import CategoryAnalytics from "../components/CategoryAnalytics";
+import FinanceHistory from "../components/FinanceHistory";
 function Analytics(){
     const [months,setMonths]=useState<number>(12);
     const [refreshKey,setRefreshKey]=useState(0);
@@ -25,6 +26,9 @@ function Analytics(){
         <Navbar/>
         <div className="pt-20 max-w-[1200px] m-auto px-5 pb-30">
             <h1>Analytics</h1>
+            <div className="mb-10">
+                <FinanceHistory/>
+            </div>
             <div className="mb-10">
                 <CashPrediciton predictionSummary={predictionSummary||null} months={months} onMonthsChange={(months)=>setMonths(months)}/>
             </div>

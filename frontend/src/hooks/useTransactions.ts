@@ -62,7 +62,7 @@ export const useSummary = (filters:SummaryFilters)=>{
         }).catch(()=>{
             setLoading(false);
         })
-    },[])
+    },[JSON.stringify(filters)])
 
     return{summary,loading,error};
 }

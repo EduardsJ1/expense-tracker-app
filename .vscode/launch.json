@@ -5,14 +5,20 @@
             "name": "Debug TypeScript",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/backend/src/app.ts", // Your main entry point
+            "program": "${workspaceFolder}/backend/src/index.ts",
+            "cwd": "${workspaceFolder}/backend",
             "runtimeArgs": ["-r", "ts-node/register"],
             "env": {
                 "NODE_ENV": "development"
             },
             "console": "integratedTerminal",
             "restart": true,
-            "outFiles": ["${workspaceFolder}/backend/dist/**/*.js"]
+            "sourceMaps": true,
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/backend/node_modules/**",
+                "${workspaceFolder}/backend/dist/**"
+            ]
         }
     ]
 }

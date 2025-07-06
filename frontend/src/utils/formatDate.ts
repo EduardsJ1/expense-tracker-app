@@ -27,6 +27,60 @@ export function getRelativeDayLabel(utcDateString:string,now:Date=new Date()):st
     }
 }
 
+export function DateToDay(date:string|Date,IncludeMonth:boolean=false,fullMonthName:boolean=false):string{
+    const newDate = new Date (date);
+    const month = newDate.getMonth();
+    const day = newDate.getDate();
+    let result;
+    console.log(date);
+    console.log(day);
+    if(IncludeMonth){
+        switch (month) {
+            case 0:
+                result = fullMonthName ? ("January " + day) : (day + " Jan");
+                break;
+            case 1:
+                result = fullMonthName ? ("February " + day) : (day + " Feb");
+                break;
+            case 2:
+                result = fullMonthName ? ("March " + day) : (day + " Mar");
+                break;
+            case 3:
+                result = fullMonthName ? ("April " + day) : (day + " Apr");
+                break;
+            case 4:
+                result = fullMonthName ? ("May " + day) : (day + " May");
+                break;
+            case 5:
+                result = fullMonthName ? ("June " + day) : (day + " Jun");
+                break;
+            case 6:
+                result = fullMonthName ? ("July " + day) : (day + " Jul");
+                break;
+            case 7:
+                result = fullMonthName ? ("August " + day) : (day + " Aug");
+                break;
+            case 8:
+                result = fullMonthName ? ("September " + day) : (day + " Sep");
+                break;
+            case 9:
+                result = fullMonthName ? ("October " + day) : (day + " Oct");
+                break;
+            case 10:
+                result = fullMonthName ? ("November " + day) : (day + " Nov");
+                break;
+            case 11:
+                result = fullMonthName ? ("December " + day) : (day + " Dec");
+                break;
+            default:
+                result = "";
+        }
+        return result;
+    }else{
+        return day.toString();
+    }
+}
+
 export function DateToMonth(date:string|Date,fullMonthName:boolean=false):string{
     const newDate = new Date (date);
     const month = newDate.getMonth();

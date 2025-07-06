@@ -15,16 +15,18 @@ export interface TransactionData {
     }]
 }
 
-export interface Summary {
-    totalIncome:number,
-    totalExpense:number,
-    totalBalance:number,
-    data?:{
-        period:string,
-        income:number,
-        expense:number,
-        balance:number
-    }[]
+export interface SummaryData {
+    period: string,
+    income: number,
+    expense: number,
+    balance: number
+}
+
+export interface Summary extends SummaryData {
+    totalIncome: number,
+    totalExpense: number,
+    totalBalance: number,
+    data?: SummaryData[]
 }
 
 export interface Transaction{
