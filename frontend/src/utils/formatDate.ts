@@ -32,8 +32,6 @@ export function DateToDay(date:string|Date,IncludeMonth:boolean=false,fullMonthN
     const month = newDate.getMonth();
     const day = newDate.getDate();
     let result;
-    console.log(date);
-    console.log(day);
     if(IncludeMonth){
         switch (month) {
             case 0:

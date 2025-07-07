@@ -251,10 +251,20 @@ export const getTransactionsSummary = async (req: express.Request, res: express.
         let selectClause='';
         let paramIndex = 2;
         let orderByClause='';
+
+
+        let previousBalance = 0;
         if(from){
             conditions.push(`DATE(created_at) >= $${paramIndex}`);
             values.push(from);
             paramIndex++;
+            const prevBalanceQuery = `
+                SELECT COALESCE(SUM(CASE WHEN type='income' THEN amount ELSE -amount END), 0) as previous_balance
+                FROM transactions 
+                WHERE user_id=$1 AND DATE(created_at) < $2
+            `;
+            const prevBalanceResult = await db.query(prevBalanceQuery, [userId, from]);
+            previousBalance = parseFloat(prevBalanceResult.rows[0].previous_balance) || 0;
         }
 
         if(to){
@@ -282,7 +292,7 @@ export const getTransactionsSummary = async (req: express.Request, res: express.
         const result = await db.query(query,values);
 
         if(groupBy && result.rows.length>0){
-            let cumulativeBalance = 0;
+            let cumulativeBalance = previousBalance;
 
             const filledData = fillMissingPeriods(result.rows,groupBy as string,from as string,to as string);
 

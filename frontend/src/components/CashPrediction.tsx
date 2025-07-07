@@ -50,7 +50,7 @@ function CashPrediciton({predictionSummary,months,onMonthsChange}:{predictionSum
             </div>
             {predictionSummary ? (
             <div>
-                <div className="h-60 px-5">
+                <div className="h-100 px-5">
                     <PredictionChart data={predictionSummary.projectedData} dataKey={["income","expense","balance"]} colors={["#1f6e2c","#630d0d"]} xLabelKey="date" dateKey="date"/>
                 </div>
                 <div className="flex gap-5 flex-wrap mt-5 mb-5">

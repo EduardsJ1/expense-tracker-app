@@ -1,17 +1,26 @@
 import {ComposedChart, Tooltip, XAxis, YAxis, Area, Line,ResponsiveContainer, ReferenceLine, Legend} from 'recharts';
 import { DateToMonth, DateToDay } from '../../utils/formatDate';
+import { useState } from 'react';
 
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-        // Extract values from payload
-        const income = payload.find((p: any) => p.dataKey === 'income')?.value || 0;
-        const expense = payload.find((p: any) => p.dataKey === 'expense')?.value || 0;
-        const balance = payload.find((p: any) => p.dataKey === 'balance')?.value || 0;
+        //console.log(payload);
+        
+        const payloadData=payload[0]?.payload;
+        const income = payloadData?.income || 0;
+        const expense = payloadData?.expense || 0;
+        const balance = payloadData?.balance || 0;
+
+        const fullDate = payloadData?.fullDate || 
+                        payloadData?.fullPeriod || 
+                        payloadData?.date || 
+                        payloadData?.period || 
+                        label;
 
         return (
             <div className="bg-white p-4 border border-gray-300 rounded-lg shadow-lg min-w-[200px]">
-                <p className="font-bold text-gray-800 mb-3 text-center">{label}</p>
+                <p className="font-bold text-gray-800 mb-3 text-center">{fullDate}</p>
                 <div className="space-y-2">
                     <div className="flex justify-between items-center">
                         <span className="text-green-600 font-medium">Income:</span>
@@ -42,10 +51,43 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 function PredictionChart({data,dataKey,xLabelKey,dateFormat="month",dateKey,colors}:
     {data:any[],
     dataKey:string[],
-    xLabelKey:"date"|"period"|string ,
+    xLabelKey:"date"|"period"|string,
     dateFormat?:"month"|"day",
     dateKey?:"date"|"period",
     colors?:string[]}){
+
+
+    const [visibleLines,setVisibleLines]=useState<{[key: string]:boolean}>(
+        dataKey.reduce((acc,key)=>({...acc,[key]:true}),{})
+    );
+    
+    const CustomLegend = () => {
+        return (
+            <div className="flex justify-center gap-6 mb-4">
+                {dataKey.map((key, index) => (
+                    <div
+                        key={key}
+                        className={`flex items-center gap-2 cursor-pointer px-3 py-1 rounded transition-all duration-200 hover:bg-gray-100 ${
+                            !visibleLines[key] ? 'opacity-50' : 'opacity-100'
+                        }`}
+                        onClick={() => handleLegendClick({ dataKey: key })}
+                    >
+                        <div
+                            className="w-4 h-0.5 rounded"
+                            style={{ 
+                                backgroundColor: visibleLines[key] ? (colors?.[index] || '#000000') : '#ccc'
+                            }}
+                        />
+                        <span className={`text-sm font-medium capitalize ${
+                            !visibleLines[key] ? 'line-through text-gray-400' : 'text-gray-700'
+                        }`}>
+                            {key}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
    let formatedData;
    if(dateFormat==="month"){
@@ -58,15 +100,64 @@ function PredictionChart({data,dataKey,xLabelKey,dateFormat="month",dateKey,colo
         }
     }else if(dateFormat==="day"){
         if(dateKey==="date"){
-            formatedData= data.map((item) => ({ ...item, date: DateToDay(item.date, true) }));
+            formatedData= data.map((item) => ({ 
+                ...item, 
+                date: DateToDay(item.date, false),
+                fullDate: DateToDay(item.date, true),
+            }));
         }else if(dateKey="period"){
-            formatedData= data.map((item) => ({ ...item, period: DateToDay(item.period, true) }));
+            formatedData= data.map((item) => ({ 
+                ...item, 
+                period: DateToDay(item.period, false),
+                fullPeriod: DateToDay(item.period, true)
+            }));
         }else{
             formatedData = data;
         }
     }else{
         formatedData = data;
     }
+    const getMonthStartLines = () => {
+    const monthStarts = [];
+    if(dateFormat==="day"){
+        for (let i = 0; i < formatedData.length; i++) {
+            const item = formatedData[i];
+            
+            const fullDateStr = item.fullDate || item.fullPeriod;
+            
+            if (fullDateStr) {
+                const parts = fullDateStr.split(' ');
+                const day = parts[0];
+                const monthName = parts[1];
+                
+                if (day === '1') {
+                    monthStarts.push({
+                        position: i,
+                        monthName: monthName,
+                        fullDate: fullDateStr,
+                    });
+                }
+            }
+        }
+        return monthStarts;
+    }else{
+        return [];
+    }
+    
+    
+};
+    const monthStartLines = getMonthStartLines();
+    //console.log(monthStartLines);
+
+    //console.log(formatedData);
+     const handleLegendClick = (payload: any) => {
+        const dataKey = payload.dataKey;
+        setVisibleLines(prev => ({
+            ...prev,
+            [dataKey]: !prev[dataKey]
+        }));
+    };
+
     return(
         <div className="w-full h-full">
             <ResponsiveContainer>
@@ -74,16 +165,40 @@ function PredictionChart({data,dataKey,xLabelKey,dateFormat="month",dateKey,colo
                     <XAxis dataKey={xLabelKey}/>
                     <YAxis/>
                     <Tooltip content={<CustomTooltip/>}/>
-                    <Legend/>
+                    <Legend content={CustomLegend}/>
                     {dataKey.map((dataItem, index)=>(
+                        visibleLines[dataItem]&&(
                         <Line type="monotone" dataKey={dataItem} dot={false} stroke={colors?.[index]||'#000000'} strokeWidth={2}/>
+                        )
                     ))}
                     <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" strokeWidth={2}/>
+                    {monthStartLines.map((monthStart,index)=>(
+                        <ReferenceLine 
+                            key={`month-${index}`}
+                            x={monthStart.position} 
+                            stroke="#999" 
+                            
+                            strokeWidth={1}
+                            opacity={0.7}
+                            label={{ 
+                                value: monthStart.monthName, 
+                                position:{x:5,y:5},
+                                offset: 5,
+                                style: { 
+                                    textAnchor: 'start',
+                                    fontSize: '12px',
+                                    fill: '#666',
+                                    fontWeight: 'bold'
+                                }
+                            }}
+                        />
+                    ))}
                 </ComposedChart>
             </ResponsiveContainer>
         </div>
     );
 };
+
 
 
 
