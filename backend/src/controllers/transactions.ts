@@ -544,7 +544,7 @@ const predictionSummary= (balance:number,projectedData:any[]):FinancialPredictio
     }
     const monthlyAverageIncome=totalProjectedIncome/months;
     const monthlyAverageExpense=totalProjectedExpense/months;
-    const finalBalance = projectedData[months-1].balance;
+    const finalBalance = projectedData[months-1].balance || 0;
 
     const summary:FinancialPrediction={
         currentBalance:balance,
