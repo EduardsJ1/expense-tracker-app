@@ -29,7 +29,10 @@ function NewReccurringModal(
     const [errorAmount,setAmountError]=useState(false);
     const [amount,setAmount]=useState("");
     
-    
+    const resetInput = ()=>{
+        setData((prev)=>({...prev,type:"income",category:"",amount:0,note:null,recurrence_type:"daily",custom_interval:1,custom_unit:"hours",start_date:getDefaultStartDate(),is_active:true}));
+        setAmount("");
+    }
     useEffect(() => {
         if (user?.id) {
             setData(prev => ({ ...prev, user_id: user.id }));
@@ -70,6 +73,7 @@ function NewReccurringModal(
         //console.log(user);
         if(ReccuringToEdit){
             updateReccuring(ReccuringToEdit.id,data).then(()=>{
+                resetInput();
                 onRecurringCreate();
                 closeModal();
             }).catch(error=>{
@@ -79,6 +83,7 @@ function NewReccurringModal(
             createReccurring(data).then(() => {
                 //console.log("created transaction");
                 //console.log(data);
+                resetInput();
                 onRecurringCreate();
                 closeModal();
             })
@@ -104,7 +109,7 @@ function NewReccurringModal(
             <div className="bg-white p-6 rounded-lg shadow-lg w-xl mx-12 max-h-[90vh] overflow-y-auto">
                 <div className="relative">
                     <h2 className="text-xl font-bold text-center">{ReccuringToEdit?"Edit Reccurring Transaction":"Create new Reccurring Transaction"}</h2>
-                    <button onClick={closeModal} className="px-3 py-1 text-neutral-400 text-xl rounded absolute -top-4 -right-2 hover:bg-neutral-200 hover:cursor-pointer">X</button>
+                    <button onClick={()=>{closeModal(); resetInput()}} className="px-3 py-1 text-neutral-400 text-xl rounded absolute -top-4 -right-2 hover:bg-neutral-200 hover:cursor-pointer">X</button>
                 
                 </div>
                 <form className="" onSubmit={handleSumbit}>
@@ -240,7 +245,7 @@ function NewReccurringModal(
                             className="hover:cursor-pointer bg-green-600 rounded-2xl px-3 py-0.5 font-medium text-white hover:bg-green-700">
                             {ReccuringToEdit?"Save Changes":"Create"}
                         </button>
-                        <button type="button" className="hover:cursor-pointer bg-red-400 rounded-2xl px-3 py-0.5 font-medium text-white hover:bg-red-500" onClick={closeModal}>Cancel</button>
+                        <button type="button" className="hover:cursor-pointer bg-red-400 rounded-2xl px-3 py-0.5 font-medium text-white hover:bg-red-500" onClick={()=>{closeModal(),resetInput()}}>Cancel</button>
                     </div>
                 </form>
                 

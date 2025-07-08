@@ -43,6 +43,11 @@ function NewTransactionModal(
         setData(prev => ({ ...prev, amount:Number(value)}))
     }
 
+    const resetInput = ()=>{
+        setData((prev)=>({...prev,type:"income",category:"",amount:0,note:""}));
+        setAmount("");
+    }
+
 
     if(!display) return null;
     const handleSumbit=(e:React.FormEvent)=>{
@@ -60,6 +65,7 @@ function NewTransactionModal(
         //console.log(user);
         if(transactionToEdit){
             updateTransaction(data,transactionToEdit.id).then(()=>{
+                resetInput();
                 onTransactionCreate();
                 closeModal();
             }).catch(error=>{
@@ -69,6 +75,7 @@ function NewTransactionModal(
             createTransaction(data).then(() => {
                 //console.log("created transaction");
                 //console.log(data);
+                resetInput();
                 onTransactionCreate();
                 closeModal();
             })
@@ -144,7 +151,7 @@ function NewTransactionModal(
                             className="hover:cursor-pointer bg-green-600 rounded-2xl px-3 py-0.5 font-medium text-white hover:bg-green-700">
                             {transactionToEdit?"Save Changes":"Create"}
                         </button>
-                        <button type="button" className="hover:cursor-pointer bg-red-400 rounded-2xl px-3 py-0.5 font-medium text-white hover:bg-red-500" onClick={closeModal}>Cancel</button>
+                        <button type="button" className="hover:cursor-pointer bg-red-400 rounded-2xl px-3 py-0.5 font-medium text-white hover:bg-red-500" onClick={()=>{closeModal();resetInput()}}>Cancel</button>
                     </div>
                 </form>
                 
