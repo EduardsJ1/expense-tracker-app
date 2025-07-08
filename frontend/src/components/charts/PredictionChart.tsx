@@ -90,33 +90,78 @@ function PredictionChart({data,dataKey,xLabelKey,dateFormat="month",dateKey,colo
     };
 
    let formatedData;
+   const YearLines:any[] = [];
    if(dateFormat==="month"){
         if(dateKey==="date"){
-            formatedData= data.map((item) => ({ ...item, date: DateToMonth(item.date) }));
-        }else if(dateKey="period"){
-            formatedData= data.map((item) => ({ ...item, period: DateToMonth(item.period) }));
+            formatedData= data.map((item,index) => {
+            const formatedDate= DateToMonth(item.date);
+            if(formatedDate && formatedDate.includes('Jan')){
+                const year = new Date(item.date).getFullYear();
+                YearLines.push({
+                position:index,
+                year: year,
+                })
+            }
+            return { ...item, date: formatedDate };
+            });
+        }else if(dateKey==="period"){
+            formatedData= data.map((item,index) => {
+            const formatedPeriod = DateToMonth(item.period);
+            if(formatedPeriod && formatedPeriod.includes('Jan')){
+                const year = new Date(item.period).getFullYear();
+                YearLines.push({
+                position: index,
+                year: year,
+                })
+            }
+            return { ...item, period: formatedPeriod };
+            });
         }else{
             formatedData = data;
         }
     }else if(dateFormat==="day"){
         if(dateKey==="date"){
-            formatedData= data.map((item) => ({ 
+            formatedData= data.map((item,index) => {
+            const day = DateToDay(item.date, false)
+            const dayWithMonth = DateToDay(item.date, true);
+            if(dayWithMonth && (dayWithMonth ==='1 Jan')){
+                const year = new Date(item.date).getFullYear();
+                YearLines.push({
+                position: index,
+                year: year,
+                })
+            }
+
+            return{ 
                 ...item, 
-                date: DateToDay(item.date, false),
-                fullDate: DateToDay(item.date, true),
-            }));
-        }else if(dateKey="period"){
-            formatedData= data.map((item) => ({ 
+                date: day,
+                fullDate: dayWithMonth,
+            }
+            });
+        }else if(dateKey==="period"){
+            formatedData= data.map((item,index) => {
+            const day = DateToDay(item.period, false)
+            const dayWithMonth = DateToDay(item.period, true);
+            if(dayWithMonth && (dayWithMonth ==='1 Jan')){
+                const year = new Date(item.period).getFullYear();
+                YearLines.push({
+                position: index,
+                year: year,
+                })
+            }
+            return { 
                 ...item, 
-                period: DateToDay(item.period, false),
-                fullPeriod: DateToDay(item.period, true)
-            }));
+                period: day,
+                fullPeriod: dayWithMonth
+            }
+            });
         }else{
             formatedData = data;
         }
     }else{
         formatedData = data;
     }
+
     const getMonthStartLines = () => {
     const monthStarts = [];
     if(dateFormat==="day"){
@@ -183,6 +228,27 @@ function PredictionChart({data,dataKey,xLabelKey,dateFormat="month",dateKey,colo
                             label={{ 
                                 value: monthStart.monthName, 
                                 position:{x:5,y:5},
+                                offset: 5,
+                                style: { 
+                                    textAnchor: 'start',
+                                    fontSize: '12px',
+                                    fill: '#666',
+                                    fontWeight: 'bold'
+                                }
+                            }}
+                        />
+                    ))}
+                    {YearLines.map((YearStart,index)=>(
+                        <ReferenceLine
+                            key={`year-${index}`} 
+                            x={YearStart.position} 
+                            stroke="#999" 
+                            
+                            strokeWidth={1}
+                            opacity={0.7}
+                            label={{ 
+                                value: YearStart.year, 
+                                position:{x:5,y:20},
                                 offset: 5,
                                 style: { 
                                     textAnchor: 'start',
