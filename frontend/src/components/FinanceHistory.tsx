@@ -50,7 +50,7 @@ function FinanceHistory(){
             case "1Y":
                 setTimeFrameValue("1Y");
                 setTitleDescription("In 12 Months");
-                setFilters({groupBy:"day",from:new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth()-12, 1)),to:null});
+                setFilters({groupBy:"month",from:new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth()-12, 1)),to:null});
                 break;
             case "All":
                 setTimeFrameValue("All");
@@ -76,7 +76,7 @@ function FinanceHistory(){
                 data={summary?.data || []}
                 dataKey={["income", "expense", "balance"]}
                 xLabelKey="period"
-                dateFormat={timeFrameValue==="All" ? "month" : "day"}
+                dateFormat={(timeFrameValue==="All" || timeFrameValue==="1Y") ? "month" : "day"}
                 dateKey="period"
                 colors={["#1f6e2c", "#630d0d"]}
             />
@@ -90,14 +90,14 @@ function FinanceHistory(){
                 <DataCard className="flex-1 min-w-65">
                     <DataCard.Title>Total Income</DataCard.Title>
                     <DataCard.Value className="text-green-800">+$ {summary?.totalIncome.toFixed(2)}</DataCard.Value>
-                    <DataCard.Title>Average {timeFrameValue==="1M"||timeFrameValue==="3M"?"Daily":"Monthly"} Income</DataCard.Title>
+                    <DataCard.Title>Average {timeFrameValue==="All"||timeFrameValue==="1Y"?"Monthly":"Daily"} Income</DataCard.Title>
                     <DataCard.Value className="text-green-800">+$ {calculateAverage(summary?.data || [], "income")}</DataCard.Value>
                 </DataCard>
 
                 <DataCard className="flex-1 min-w-65">
                     <DataCard.Title>Total Expense</DataCard.Title>
                     <DataCard.Value className="text-red-800">-$ {summary?.totalExpense.toFixed(2)}</DataCard.Value>
-                    <DataCard.Title>Average {timeFrameValue==="1M"||timeFrameValue==="3M"?"Daily":"Monthly"} Expense</DataCard.Title>
+                    <DataCard.Title>Average {timeFrameValue==="All"||timeFrameValue==="1Y"?"Monthly":"Daily"} Expense</DataCard.Title>
                     <DataCard.Value className="text-red-800">-$ {calculateAverage(summary?.data || [], "expense")}</DataCard.Value>
                 </DataCard>
             </div>
