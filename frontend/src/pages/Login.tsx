@@ -11,16 +11,41 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError]= useState<string|undefined>(undefined);
+  const [passwordError, setPasswordError]=useState<string|undefined>(undefined);
+
+  const checkEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        setEmailError("Please enter a valid email address.");
+        return false;
+    }
+    setEmailError(undefined);
+    return true;
+  }
+
+  const checkPassword = (password:string)=>{
+    if(password.length<8){
+        setPasswordError("Password must have 8 characters.");
+        return false;
+    }
+    setPasswordError(undefined);
+    return true;
+  }
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
+    if(!checkEmail(email) || !checkPassword(password)){
+      return;
+    }
+    
     try {
       await loginUser(email, password);
       navigate("/dashboard");
-    } catch (error) {
-      setError("Login failed");
+    } catch (error:any) {
+      setError(error.response.data.message);
     }
   };
 
@@ -54,6 +79,8 @@ function Login() {
             type="text"
             placeholder="Email"
             value={email}
+            error={emailError!==undefined}
+            errorMessage={emailError}
             onChange={(e) => setEmail(e.target.value)}
             
           />
@@ -62,18 +89,22 @@ function Login() {
             type="password"
             placeholder="Password"
             value={password}
+            error={passwordError!==undefined}
+            errorMessage={passwordError}
             onChange={(e) => setPassword(e.target.value)}
             
           />
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 cursor-pointer"
+            className="w-full bg-gray-800 font-medium text-white py-2 rounded hover:bg-gray-600 cursor-pointer"
           >
             Login
           </button>
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
+          <div className="h-3">
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
+          </div>
         </form>
         <div>
           <p className="font-medium text-neutral-500 text-center mt-5">
