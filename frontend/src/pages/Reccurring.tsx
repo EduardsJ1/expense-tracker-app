@@ -40,6 +40,7 @@ function Recurring(){
         setFilters(newFilters);
         setCurrentPage(1);
     }
+    console.log(reccuringData)
     return(
         <>
         <Navbar/>

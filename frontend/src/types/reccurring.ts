@@ -3,7 +3,7 @@
 export interface ReccurringData{
     currentpage:number,
     totalPages:number,
-    data:[{
+    data:{
         id:number,
         user_id:number,
         amount:number,
@@ -20,7 +20,7 @@ export interface ReccurringData{
         is_active:boolean,
         created_at:string,
         updated_at:string
-    }]
+    }[]
 }
 
 export interface updateReccuringType{

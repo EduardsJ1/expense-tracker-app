@@ -50,6 +50,13 @@ function ReccuringTransactionsCards({
       </div>
 
       {/* Mobile-first card layout */}
+      {ReccurringData?.data && ReccurringData.data.length===0 ?(
+                    <div className="w-full h-80 flex pt-10">
+                        <div className="flex-1 flex justify-center items-center bg-neutral-100 rounded-2xl">
+                            <p className="text-neutral-400 text-xl">No data availabe</p>
+                        </div>
+                    </div>
+                ):(
       <div className="mt-6 space-y-4">
         {ReccurringData &&
           ReccurringData.data.map((reccuring) => (
@@ -136,7 +143,7 @@ function ReccuringTransactionsCards({
             </div>
           ))}
       </div>
-
+                )}
       <Pagination
         totalPages={ReccurringData?.totalPages || 1}
         currentPage={ReccurringData?.currentpage || 1}

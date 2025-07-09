@@ -14,7 +14,6 @@ const CURRENT_MONTH_FILTERS = getCurrentMonthFilters();
 function CategoryExpenseStats({style}:{style:string}){
    
     const {categoryData,loading:categoryLoading,error:categoryError} = useCategorySummary(CURRENT_MONTH_FILTERS);
-    //console.log(categoryData);
     return(
         <div className={`bg-white rounded-2xl w-2xs shadow-xl pb-5 flex flex-col ${style}`}>
             <div className="px-2 pt-4 mb-3">
@@ -31,6 +30,13 @@ function CategoryExpenseStats({style}:{style:string}){
                         <SingleHorizontalBar precentage={stat.precentage}/>
                     </div>
                 ))}
+                {categoryData.length===0 &&(
+                    <div className="flex-1">
+                        <div className="w-full h-full flex justify-center items-center bg-neutral-100 rounded-2xl">
+                            <p className="text-neutral-400">No data availabe</p>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
