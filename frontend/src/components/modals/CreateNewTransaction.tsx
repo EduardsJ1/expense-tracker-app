@@ -125,7 +125,7 @@ function NewTransactionModal(
 
                     <div>
                         <label className="pl-1">Category</label>
-                        <CategoryInput value={data.category} onChange={(value)=>setData(prev=>({...prev,category:value}))}/>
+                        <CategoryInput value={data.category} onChange={(value)=>setData(prev=>({...prev,category:value}))} type={data.type}/>
                         <div className="text-red-400 h-5 pl-1">{errorCategory&&"Category cant be empty!"}</div>
                     </div>
                     <div>

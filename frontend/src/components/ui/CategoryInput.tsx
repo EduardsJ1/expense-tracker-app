@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { useCategorySuggestions } from "../../hooks/useCategories";
 import useDebounce from "../../hooks/useDebounce";
 import type { CategoryFilters } from "../../api/transactions";
-function CategoryInput({onChange,value}:{onChange:(value:string)=>void; value:string}){
+function CategoryInput({onChange,value,type}:{onChange:(value:string)=>void; value:string, type?:"income"|"expense"}){
     
 
 
-    const [filters,setFilters]= useState<CategoryFilters | undefined>(undefined);
+    const [filters,setFilters]= useState<CategoryFilters | undefined>({type:type});
     const [suggestionDisplay,setSuggestionDisplay]=useState(false);
     const debouncedInput = useDebounce(value,500);
     const {categories,loading,error}=useCategorySuggestions(filters);
@@ -22,13 +22,13 @@ function CategoryInput({onChange,value}:{onChange:(value:string)=>void; value:st
     }
 
     useEffect(() => {
+        const newFilters: CategoryFilters = { type: type };
+        
         if (debouncedInput.length > 0) {
-            setFilters({ search: debouncedInput });
-        } else {
-            setFilters(undefined);
+            newFilters.search = debouncedInput;
         }
-    }, [debouncedInput]);
-
+        setFilters(newFilters);
+    }, [debouncedInput,type]);
 
     return(
         <SuggestionWrapper display={suggestionDisplay} suggestionData={categories} onSelect={handleSuggestionSelect} onClose={()=>setSuggestionDisplay(false)}>
