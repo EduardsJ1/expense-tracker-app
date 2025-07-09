@@ -55,14 +55,15 @@ export const login = async (req: express.Request, res: express.Response)=>{
         }
 
         const result= await db.query('SELECT * FROM users WHERE email=$1', [email]);
-        if(!result){
-            res.status(400).json({message:"email not correct"});
+        if(result.rows.length === 0){
+            res.status(400).json({message:"Email or password is incorrect"});
+            return;
         }
 
         const user = result.rows[0];
-
-        if(!verifyPassword(user.password,password)){
-            res.status(400).json({message:"password is incorrect"});
+        const passwordIsValid = await verifyPassword(user.password, password);
+        if(!passwordIsValid){
+            res.status(400).json({message:"Email or password is incorrect"});
             return;
         }
 
