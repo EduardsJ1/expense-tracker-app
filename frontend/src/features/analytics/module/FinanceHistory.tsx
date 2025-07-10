@@ -1,9 +1,9 @@
-import PredictionChart from "./charts/PredictionChart";
-import DataCard from "./ui/DataCard";
-import {useSummary} from "../hooks/useTransactions";
+import PredictionChart from "../components/charts/PredictionChart";
+import DataCard from "../../../components/ui/DataCard";
+import {useSummary} from "../../../hooks/useTransactions";
 import { useState } from "react";
-import TabStyleInput from "./ui/TabStyleInput";
-import type {SummaryData, SummaryFilters} from "../types/transactions"
+import TabStyleInput from "../../../components/ui/TabStyleInput";
+import type {SummaryData, SummaryFilters} from "../../../types/transactions"
 function calculateAverage(data:SummaryData[],datakey:"income"|"expense"){
     const datalenght = data.length;
     let sum = 0;

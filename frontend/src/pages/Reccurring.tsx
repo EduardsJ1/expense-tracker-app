@@ -1,12 +1,12 @@
 import Navbar from "../components/Navbar";
 import { useReccurring } from "../hooks/useReccurring";
-import ReccuringTransactionsTable from "../components/ReccuringTransactionsTable";
+import ReccuringTransactionsTable from "../features/reccurring/components/ReccuringTransactionsTable";
 import { useState } from "react";
 import {updateReccuring} from "../api/reccurring";
-import ReccuringTransactionsCards from "../components/ReccuringTransactionsCards";
-import NewReccurringModal from "../components/modals/CreateNewReccurring";
+import ReccuringTransactionsCards from "../features/reccurring/components/ReccuringTransactionsCards";
+import NewReccurringModal from "../features/analytics/components/CreateNewReccurring";
 import type {ReccurringType} from "../types/reccurring"
-import RecurringFilter from "../components/RecurringFilters";
+import RecurringFilter from "../features/reccurring/components/RecurringFilters";
 import type { ParamFilters } from "../api/reccurring";
 function Recurring(){
     const [currentPage,setCurrentPage]=useState(1);
@@ -40,7 +40,6 @@ function Recurring(){
         setFilters(newFilters);
         setCurrentPage(1);
     }
-    console.log(reccuringData)
     return(
         <>
         <Navbar/>

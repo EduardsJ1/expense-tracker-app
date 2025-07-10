@@ -7,7 +7,7 @@ import MonthsStats from "../components/MonthStatsModule";
 import RecentTransactions from "../components/RecentTransactions";
 import QuickActions from "../components/QuickActionModule";
 import NewTransactionModal from "../components/modals/CreateNewTransaction";
-import NewReccurringModal from "../components/modals/CreateNewReccurring";
+import NewReccurringModal from "../features/analytics/components/CreateNewReccurring";
 import LinkCard from "../components/ui/LinkCard";
 import CategoryExpenseStats from "../components/CategoryExpenseStats";
 

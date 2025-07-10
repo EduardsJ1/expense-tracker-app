@@ -1,13 +1,13 @@
 
 import Navbar from "../components/Navbar"
-import CashPrediciton from "../components/CashPrediction";
+import CashPrediciton from "../features/analytics/module/CashPrediction";
 import { useState } from "react";
 import PieChart from "../components/charts/PieChart";
 //hooks
 import useAnalytics from "../hooks/useAnalytics";
 import { useCategorySummary } from "../hooks/useCategories";
-import CategoryAnalytics from "../components/CategoryAnalytics";
-import FinanceHistory from "../components/FinanceHistory";
+import CategoryAnalytics from "../features/analytics/module/CategoryAnalytics";
+import FinanceHistory from "../features/analytics/module/FinanceHistory";
 function Analytics(){
     const [months,setMonths]=useState<number>(12);
     const [refreshKey,setRefreshKey]=useState(0);

@@ -1,6 +1,6 @@
 import React, { useState,useRef } from "react";
-import type {ParamFilters} from "../api/reccurring";
-import DropDownOptions from "./ui/DropDownOptions";
+import type {ParamFilters} from "../../../api/reccurring";
+import DropDownOptions from "../../../components/ui/DropDownOptions";
 
 function RecurringFilter({onChange}:{onChange:(filterData?:ParamFilters)=>void}){
     const [filterData,setFilterData]=useState<ParamFilters>();

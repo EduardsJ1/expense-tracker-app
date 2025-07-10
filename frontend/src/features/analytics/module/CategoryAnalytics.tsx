@@ -1,10 +1,10 @@
-import PieChart from "./charts/PieChart";
-import { useCategorySummary } from "../hooks/useCategories";
-import AnalyticsArrow from "./ui/icons/AnalyticsArrow";
-import Input from "./ui/Input";
+import PieChart from "../../../components/charts/PieChart";
+import { useCategorySummary } from "../../../hooks/useCategories";
+import AnalyticsArrow from "../../../components/ui/icons/AnalyticsArrow";
+import Input from "../../../components/ui/Input";
 import { useState } from "react";
-import useDebounce from "../hooks/useDebounce";
-import TabStyleInput from "./ui/TabStyleInput";
+import useDebounce from "../../../hooks/useDebounce";
+import TabStyleInput from "../../../components/ui/TabStyleInput";
 
 
 function CategoryAnalytics(){

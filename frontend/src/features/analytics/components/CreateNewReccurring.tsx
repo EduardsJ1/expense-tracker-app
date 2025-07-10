@@ -1,9 +1,9 @@
 import { useState,useEffect } from "react";
-import {createReccurring,updateReccuring} from "../../api/reccurring";
-import type {CreateReccurringType,ReccurringType} from "../../types/reccurring";
-import { useAuth } from "../../hooks/useAuth";
-import DropDownOptions from "../ui/DropDownOptions";
-import CategoryInput from "../ui/CategoryInput";
+import {createReccurring,updateReccuring} from "../../../api/reccurring";
+import type {CreateReccurringType,ReccurringType} from "../../../types/reccurring";
+import { useAuth } from "../../../hooks/useAuth";
+import DropDownOptions from "../../../components/ui/DropDownOptions";
+import CategoryInput from "../../../components/ui/CategoryInput";
 
 function NewReccurringModal(
     {display,closeModal,onRecurringCreate,ReccuringToEdit}:

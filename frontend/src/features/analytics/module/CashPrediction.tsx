@@ -1,9 +1,9 @@
-import PredictionChart from "./charts/PredictionChart";
-import type {PredictionSummary} from "../types/analytics";
-import useDebounce from "../hooks/useDebounce";
-import TotalBalance from "./TotalBalance";
-import DataCard from "./ui/DataCard";
-import Input from "./ui/Input";
+import PredictionChart from "../components/charts/PredictionChart";
+import type {PredictionSummary} from "../../../types/analytics";
+import useDebounce from "../../../hooks/useDebounce";
+import TotalBalance from "../../../components/TotalBalance";
+import DataCard from "../../../components/ui/DataCard";
+import Input from "../../../components/ui/Input";
 import { useEffect, useState } from "react";
 function CashPrediciton({predictionSummary,months,onMonthsChange}:{predictionSummary:PredictionSummary|null,months:number,onMonthsChange:(months:number)=>void}){
     const [monthsInputValue,setMonths]=useState("12");

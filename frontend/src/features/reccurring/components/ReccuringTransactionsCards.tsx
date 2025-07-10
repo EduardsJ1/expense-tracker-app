@@ -1,11 +1,11 @@
-import type { ReccurringData,ReccurringType } from "../types/reccurring";
-import Pagination from "./Pagination";
-import { formatLocalDateTime } from "../utils/formatDate";
-import ResumeIcon from "./ui/icons/ResumeIcons";
-import PausedIcon from "./ui/icons/PausedIcon";
-import EditIcon from "./ui/icons/EditIcon";
-import TrashIcon from "./ui/icons/TrashIcon";
-import DeleteModal from "./modals/DeleteModal";
+import type { ReccurringData,ReccurringType } from "../../../types/reccurring";
+import Pagination from "../../../components/Pagination";
+import { formatLocalDateTime } from "../../../utils/formatDate";
+import ResumeIcon from "../../../components/ui/icons/ResumeIcons";
+import PausedIcon from "../../../components/ui/icons/PausedIcon";
+import EditIcon from "../../../components/ui/icons/EditIcon";
+import TrashIcon from "../../../components/ui/icons/TrashIcon";
+import DeleteModal from "../../../components/modals/DeleteModal";
 import { useState } from "react";
 
 function ReccuringTransactionsCards({
