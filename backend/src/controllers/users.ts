@@ -122,3 +122,46 @@ export const logout = (req: express.Request, res:express.Response)=>{
         console.log(error);
     }
 }
+
+export const updateUser = async (req: express.Request, res:express.Response)=>{
+    try{
+        const userId=req.userId;
+        const {email,password,name} = req.body;
+        const setClause = [];
+        const values = [];
+        let paramIndex = 1;
+        if(!email&&!password&&!name){
+            res.status(400).json({message:"email or password or name not provided"});
+            return;
+        }
+        if(email){
+            setClause.push(`email = $${paramIndex}`);
+            values.push(email);
+            paramIndex++;
+        }
+
+        if(password){
+            setClause.push(`password = $${paramIndex}`);
+            const hashedPassword = await hashPassword(password);
+            values.push(hashedPassword);
+            paramIndex++;
+        }
+
+        if(name){
+            setClause.push(`name =$${paramIndex}`);
+            values.push(name);
+            paramIndex++;
+        }
+        values.push(userId);
+        const joinedSetClause = setClause.join(', ')
+
+        const query = `UPDATE users SET ${joinedSetClause} WHERE id = $${paramIndex} RETURNING id, email, password, name`;
+        const result = await db.query(query,values)
+
+        res.status(200).json(result.rows[0]);
+
+    }catch(error){
+        res.sendStatus(500);
+        console.log(error);
+    }
+}
