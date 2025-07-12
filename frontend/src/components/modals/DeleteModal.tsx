@@ -1,5 +1,5 @@
 import {deleteReccuring} from "../../api/reccurring";
-import { deleteTransaction } from "../../api/transactions";
+import { deleteTransaction } from "../../features/transactions/api/transactions";
 
 function DeleteModal(
     {display,closeModal,onDeleted,transactionid,reccurringid}:

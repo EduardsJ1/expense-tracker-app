@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
-import type {CategoryFilters} from '../api/transactions';
-import {getTransactionCategories} from '../api/transactions';
+import type {CategoryFilters} from '../types/category';
+import {getTransactionCategories} from '../api/category';
 import type {CategorySummaryFilters} from "../api/analytics";
 import type {CategorySummary} from "../types/analytics";
 import { getCategorySummary } from '../api/analytics';

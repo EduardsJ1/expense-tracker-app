@@ -1,26 +1,11 @@
 import { useEffect, useState } from "react";
 import {getTransactions,getSingleTransaction,getSummary} from "../api/transactions";
-import type {TransactionData,Summary,SummaryFilters} from "../types/transactions";
+import type {TransactionData,Summary,SummaryFilters,TransactionFilters} from "../types/transactions";
 
 
 
-export interface FileterOptions{
-    page?:number,
-    items?:number,
-    from?:string,
-    to?:string,
-    type?:null|"income"|"expense",
-    category?:string,
-    maxAmount?:number,
-    minAmount?:number,
-    sortBy?:string,
-    sortOrder?:string,
-    search?:string,
-    hasNote?:boolean,
-    refreshKey?:any
-}
 
-export const useTransactions = (filters:FileterOptions) =>{
+export const useTransactions = (filters?:TransactionFilters) =>{
     const [transactions,setTransactions]=useState<TransactionData>();
     const [loading,setLoading] = useState(true);
     const [error,setError] = useState<string | null>(null);    
@@ -28,12 +13,8 @@ export const useTransactions = (filters:FileterOptions) =>{
     useEffect(() => {
         setLoading(true);
         
-        // Filter out null and undefined values before sending to API
-        const cleanFilters = Object.fromEntries(
-            Object.entries(filters).filter(([_, value]) => value !== null && value !== undefined)
-        );
         
-        getTransactions(cleanFilters)
+        getTransactions(filters)
             .then((res) => {
                 //console.log(res.data);
                 setTransactions(res.data);

@@ -1,5 +1,5 @@
 
-import type {Transaction} from "../types/transactions";
+import type {Transaction} from "../features/transactions/types/transactions";
 import {getRelativeDayLabel} from "../utils/formatDate";
 
 

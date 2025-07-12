@@ -1,8 +1,8 @@
 import { useState,useEffect } from "react";
-import {createTransaction,updateTransaction} from "../../api/transactions";
-import type {createTransactionType,Transaction} from "../../types/transactions";
-import { useAuth } from "../../hooks/useAuth";
-import CategoryInput from "../ui/CategoryInput";
+import {createTransaction,updateTransaction} from "../api/transactions";
+import type {createTransactionType,Transaction} from "../types/transactions";
+import { useAuth } from "../../../hooks/useAuth";
+import CategoryInput from "../../../components/ui/CategoryInput";
 
 function NewTransactionModal(
     {display,closeModal,onTransactionCreate,transactionToEdit}:

@@ -3,7 +3,7 @@ import Input from "./Input"
 import { useEffect, useState } from "react";
 import { useCategorySuggestions } from "../../hooks/useCategories";
 import useDebounce from "../../hooks/useDebounce";
-import type { CategoryFilters } from "../../api/transactions";
+import type { CategoryFilters } from "../../types/category";
 function CategoryInput({onChange,value,type}:{onChange:(value:string)=>void; value:string, type?:"income"|"expense"}){
     
 

@@ -1,4 +1,4 @@
-import type {Summary} from "../types/transactions";
+import type {Summary} from "../features/transactions/types/transactions";
 
 interface MonthsStatProps{
     type:"income"|"expense",

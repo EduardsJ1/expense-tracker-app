@@ -2,7 +2,7 @@
 export interface TransactionData {
     currentpage:number,
     totalPages:number,
-    data:[{
+    data:{
         id:number,
         user_id:number,
         amount:number,
@@ -12,7 +12,7 @@ export interface TransactionData {
         created_at:string,
         updated_at:string,
         recurring_id?:number|null
-    }]
+    }[]
 }
 
 export interface SummaryData {
@@ -53,4 +53,20 @@ export interface createTransactionType{
     type:"expense"|"income",
     category:string,
     note?:string|null,
+}
+
+export interface TransactionFilters {
+    page?: number;
+    items?: number;
+    from?: string;
+    to?: string;
+    type?: null | "income" | "expense";
+    category?: string;
+    maxAmount?: number;
+    minAmount?: number;
+    sortBy?: string;
+    sortOrder?: string;
+    search?: string;
+    hasNote?: boolean;
+    refreshKey?:any,
 }

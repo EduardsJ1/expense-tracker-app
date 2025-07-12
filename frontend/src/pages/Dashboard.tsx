@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import {useSummary,useTransactions} from "../hooks/useTransactions";
+import {useSummary,useTransactions} from "../features/transactions/hooks/useTransactions";
 
 import TotalBalance from "../components/TotalBalance";
 import MonthsStats from "../components/MonthStatsModule";
 import RecentTransactions from "../components/RecentTransactions";
 import QuickActions from "../components/QuickActionModule";
-import NewTransactionModal from "../components/modals/CreateNewTransaction";
+import NewTransactionModal from "../features/transactions/components/CreateNewTransaction";
 import NewReccurringModal from "../features/analytics/components/CreateNewReccurring";
 import LinkCard from "../components/ui/LinkCard";
 import CategoryExpenseStats from "../components/CategoryExpenseStats";

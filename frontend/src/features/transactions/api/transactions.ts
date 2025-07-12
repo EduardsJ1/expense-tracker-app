@@ -1,21 +1,8 @@
-import type { TransactionData,createTransactionType, Summary,SummaryFilters, Transaction } from "../types/transactions";
-import api from ".";
+import type { TransactionData,createTransactionType, Summary,SummaryFilters, Transaction, TransactionFilters } from "../types/transactions";
+import api from "../../../api/index";
 export const getTransactions = (
-    params?:{
-        page?:number,
-        items?:number,
-        from?:string,
-        to?:string,
-        type?:null|"income"|"expense",
-        category?:string,
-        maxAmount?:number,
-        minAmount?:number,
-        sortBy?:string,
-        sortOrder?:string,
-        search?:string,
-        hasNote?:boolean
-    })=> 
-api.get<TransactionData>("/transactions",{params});
+    params?:TransactionFilters)=> api.get<TransactionData>("/transactions",{params}
+    );
 
 
 export const getSingleTransaction = async (id:number)=>{
@@ -40,16 +27,4 @@ export const getSummary = async (params?:SummaryFilters) =>{
 export const deleteTransaction = async (id:number)=>{
     const response = await api.delete(`/transactions/${id}`);
     return response;
-}
-
-
-export interface CategoryFilters{
-    search?:string,
-    items?:number,
-    type?:"income"|"expense"
-}
-
-export const getTransactionCategories= async (filters?:CategoryFilters)=>{
-    const response = await api.get<string[]>(`/transactions/categories`, { params: filters });
-    return response.data;
 }
