@@ -68,5 +68,6 @@ export interface TransactionFilters {
     sortOrder?: string;
     search?: string;
     hasNote?: boolean;
+    isRecurring?:boolean,
     refreshKey?:any,
 }

@@ -56,7 +56,8 @@ export const getTransactions= async (req:express.Request, res: express.Response)
             search, // search for what is included in note or category ("wag")=>note ("this months wage");
 
 
-            hasNote //true false, if row has note
+            hasNote, //true false, if row has note
+            isRecurring //true (only with recurring id) false(only without recurring id) undefined (all)
         
         } = req.query;
         const conditions = ['user_id=$1'];
@@ -122,10 +123,18 @@ export const getTransactions= async (req:express.Request, res: express.Response)
 
         // transaction has note attached or not
         if(hasNote){
-            if(hasNote=="true"){
+            if(hasNote==="true"){
                 conditions.push(`note IS NOT NULL AND note != ''`);
             } else{
                 conditions.push(`note IS NULL OR note = ''`);
+            }
+        }
+
+        if(isRecurring){
+            if(isRecurring==="true"){
+                conditions.push(`recurring_id IS NOT NULL`);
+            }else if(isRecurring==="false"){
+                conditions.push(`recurring_id IS NULL`);
             }
         }
 
