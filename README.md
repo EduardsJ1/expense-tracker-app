@@ -37,7 +37,7 @@ A modern, full-stack expense tracking application built with React, TypeScript, 
 
 ### Data Visualization
 
-- **Interactive Charts**: View your financial data with responsive charts
+- **Interactive Charts**: View your financial data with responsive charts, like hiding income and expense chart lines
 - **Monthly/Daily Summaries**: Aggregate data by different time periods
 - **Balance Tracking**: Monitor your running balance over time
 - **Income vs Expense Analysis**: Compare income and expense trends
@@ -82,14 +82,72 @@ A modern, full-stack expense tracking application built with React, TypeScript, 
 
 ![Recurring Transaction modal](./frontend/src/assets/screenshots/recurring_Modal.png)
 
-## Env variables
+# How to run the project
 
-### Backend .env
+### Setup Instructions
 
-PORT=8000
-DATABASE_URL={DatabaseURL}
-JWT_SECRET={SECRET}
+1. **Clone the repository:**
 
-### Frontend .env
+   ```bash
+   git clone https://github.com/EduardsJ1/expense-tracker-app
+   cd expense-tracker-app
+   ```
 
-VITE_API_URL={Server API url}
+2. **Install frontend dependencies:**
+
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+3. **Install backend dependencies:**
+
+   ```bash
+   cd ../backend
+   npm install
+   ```
+
+4. **Start the database:**
+
+   ```bash
+   docker-compose up -d
+   ```
+
+   > **Note**: Make sure Docker Desktop is running
+
+5. **Configure environment variables:**
+
+   Create `.env` file in the **backend** folder:
+
+   ```env
+   PORT=8000
+   DATABASE_URL=postgresql://postgres:password123@localhost:5432/expense_db
+   JWT_SECRET=SomeSecret
+   ```
+
+   Create `.env` file in the **frontend** folder:
+
+   ```env
+   VITE_API_URL=http://localhost:8000
+   ```
+
+6. **Start the servers:**
+
+   **Backend** (in one terminal):
+
+   ```bash
+   cd backend
+   npm run dev
+   ```
+
+   **Frontend** (in another terminal):
+
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+7. **Access the application:**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:8000
+   - Database: localhost:5432
