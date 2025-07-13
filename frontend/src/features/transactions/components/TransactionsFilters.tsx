@@ -10,7 +10,7 @@ function TransactionFilters({onFiltersChange}:{onFiltersChange:(filters:Tfilters
     const [type,setType]= useState<"income"|"expense"|"all types">("all types");
     const [status,setStatus]=useState<"all"|"recurring"|"one time">("all");
     const [sort,setSort]=useState<"date"|"type"|"category"|"amount">("date");
-    const [order,setOrder]=useState<"Ascending"|"Descending">("Ascending");
+    const [order,setOrder]=useState<"Ascending"|"Descending">("Descending");
     useEffect(()=>{
         onFiltersChange({
             search: DebouncedSearch || undefined,

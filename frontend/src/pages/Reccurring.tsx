@@ -8,6 +8,7 @@ import NewReccurringModal from "../features/analytics/components/CreateNewReccur
 import type {ReccurringType} from "../types/reccurring"
 import RecurringFilter from "../features/reccurring/components/RecurringFilters";
 import type { ParamFilters } from "../api/reccurring";
+import MainLayot from "../layouts/MainLayout";
 function Recurring(){
     const [currentPage,setCurrentPage]=useState(1);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -42,9 +43,8 @@ function Recurring(){
     }
     return(
         <>
-        <Navbar/>
-        <div className="pt-50 max-w-[1300px] mx-auto px-5">
-            <div>
+        <MainLayot>
+            <div className="pt-10">
                 <RecurringFilter onChange={handleFiltersChange}/>
             </div>
             <div>
@@ -55,7 +55,7 @@ function Recurring(){
                     <ReccuringTransactionsCards ReccurringData={reccuringData} handlePage={handlepage} handlePause={handleActive} handleDeleteReccuring={refreshReccurring} openReccuringModal={handleOpenReccuringModal}/>
                 </div>
             </div>
-        </div>
+        </MainLayot>
         <NewReccurringModal display={displayReccurringModal} closeModal={handleCloseModal} onRecurringCreate={refreshReccurring} ReccuringToEdit={reccuringToEdit}/>
         </>
     )

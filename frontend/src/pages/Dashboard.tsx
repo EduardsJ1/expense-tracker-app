@@ -25,7 +25,7 @@ function Dashboard(){
     const [refreshKey,setRefreshKey]=useState(0);
     const { summary, loading: summaryLoading, error: summaryError } = useSummary({groupBy:"month"});
     const {transactions,loading: transactionsLoading,error:transactionsError} = useTransactions({page:1,items:4,refreshKey});
-
+    const reversedData = summary?.data ? [...summary.data].reverse():[];
     const handleRefreshTransactions=()=>{
         setRefreshKey(prev=>prev+1);
     }
@@ -34,8 +34,8 @@ function Dashboard(){
        <MainLayot>
                 <div className="flex space-x-2 justify-center flex-wrap gap-2 mb-5 mt-5">
                     <TotalBalance balance={Number(summary?.totalBalance)} />
-                    <MonthsStats type="income" data={summary?.data}/>
-                    <MonthsStats type="expense" data={summary?.data}/>
+                    <MonthsStats type="income" data={reversedData}/>
+                    <MonthsStats type="expense" data={reversedData}/>
                 </div>
                 <div className="flex space-x-2 justify-between gap-5 flex-wrap mb-5">
                     <QuickActions AddTransaction={()=>setTransactionDisplay(true)} AddRecurring={()=>setRecurringDisplay(true)} styles="flex-1 min-w-[300px] min-h-[310px]"/>

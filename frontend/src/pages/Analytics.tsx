@@ -1,13 +1,11 @@
-
-import Navbar from "../components/Navbar"
 import CashPrediciton from "../features/analytics/module/CashPrediction";
 import { useState } from "react";
-import PieChart from "../components/charts/PieChart";
 //hooks
 import useAnalytics from "../hooks/useAnalytics";
-import { useCategorySummary } from "../hooks/useCategories";
 import CategoryAnalytics from "../features/analytics/module/CategoryAnalytics";
 import FinanceHistory from "../features/analytics/module/FinanceHistory";
+
+import MainLayot from "../layouts/MainLayout";
 function Analytics(){
     const [months,setMonths]=useState<number>(12);
     const [refreshKey,setRefreshKey]=useState(0);
@@ -22,10 +20,8 @@ function Analytics(){
     }
     
     return(
-        <>
-        <Navbar/>
-        <div className="pt-20 max-w-[1200px] m-auto px-5 pb-30">
-            <h1>Analytics</h1>
+       <MainLayot>
+        <div className="pt-10 max-w-[1200px] m-auto px-5 pb-30">
             <div className="mb-10">
                 <FinanceHistory/>
             </div>
@@ -37,7 +33,7 @@ function Analytics(){
             </div>
             
         </div>
-        </>
+        </MainLayot>
     )
 }
 
