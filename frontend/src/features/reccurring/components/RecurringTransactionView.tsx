@@ -87,10 +87,10 @@ const FromatTableData=(
                     <p>Every {recurring.custom_interval} {recurring.custom_unit}</p>:
                     <p>{recurring.recurrence_type}</p>,
         "Next Execution": <p>{formatLocalDateTime(recurring.next_occurrence)}</p>,
-        "Status":<span className={`flex items-center rounded-full w-fit min-w-[75px] px-1 pr-2 py-0.5 text-sm font-normal gap-1 ${recurring.is_active?"bg-neutral-700 text-white":"bg-neutral-200 text-black"}`}>
+        "Status":<span className={`flex m-auto items-center rounded-full w-fit min-w-[75px] px-1 pr-2 py-0.5 text-sm font-normal gap-1 ${recurring.is_active?"bg-neutral-700 text-white":"bg-neutral-200 text-black"}`}>
                     {recurring.is_active?(<><ResumeIcon size={16} color="#ffffff"/>Active</>):(<><PausedIcon size={16} color="#000000"/>Paused</>)}
                 </span>,
-        "Actions":<div className="flex items-center gap-1">
+        "Actions":<div className="flex items-center gap-1 justify-center">
                     <button className="border-1 border-neutral-400 rounded-md p-2 hover:bg-neutral-300 cursor-pointer" onClick={()=>handleEdit(recurring)}>
                         <EditIcon/>
                     </button>
