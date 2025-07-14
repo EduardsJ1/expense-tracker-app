@@ -1,96 +1,40 @@
-import React, { useState,useRef } from "react";
-import type {ParamFilters} from "../../../api/reccurring";
+import React, { useState,useEffect } from "react";
+import type {RecurringFilters} from "../types/reccurring";
 import DropDownOptions from "../../../components/ui/DropDownOptions";
+import useDebounce from "../../../hooks/useDebounce";
+function RecurringFilter({onFiltersChange}:{onFiltersChange:(filterData?:RecurringFilters)=>void}){
+    const [searchValue,setSearchValue]=useState<string>("");
+    const DebouncedSearch = useDebounce(searchValue,500);
+    const [type,setType]= useState<"income"|"expense"|"All Types">("All Types");
+    const [status,setStatus]=useState<"Any"|"Active"|"Paused">("Any");
+    const [sort,setSort]=useState<"Date"|"Amount"|"Type"|"Start Date"|"Next Execution">("Date");
+    const [order,setOrder]=useState<"Ascending"|"Descending">("Descending");
+    useEffect(()=>{
+        onFiltersChange({
+            search: DebouncedSearch || undefined,
+            type: type ==="All Types"?undefined:type,
+            is_active: status ==="Any"? undefined:(status==="Active"?true:false),
+            sortBy:FormatSort(sort),
+            sortOrder:order==="Ascending"?"asc":"desc"
+        })
+    },[DebouncedSearch,type,status,sort,order])
 
-function RecurringFilter({onChange}:{onChange:(filterData?:ParamFilters)=>void}){
-    const [filterData,setFilterData]=useState<ParamFilters>();
-    const timeoutRef = useRef<NodeJS.Timeout | null>(undefined);
-    const [status,setStatus]=useState<string>("Any");
-    const [sortBy,setsortBy]=useState<string>("Created Date");
-    const [orderBy,setOrderBy]=useState<string>("Descending");
-
-    const handleStatus=(value:string)=>{
-        let newFilterData;
-
-        if(value==="Any"){
-            newFilterData={...filterData, is_active:undefined};
-            setStatus("Any");
-        }else if(value==="Active"){
-            newFilterData={...filterData,is_active:true};
-            setStatus("Active");
-        }else{
-            newFilterData={...filterData,is_active:false};
-            setStatus("Paused");
+    const FormatSort=(sort:string)=>{
+        switch(sort){
+            case "Date":
+                return "created_at";
+            case "Amount":
+                return "amount";
+            case "Type":
+                return "type";
+            case "Start Date":
+                return "next_occurence";
+            case "Next Execution":
+                return "mext_occurrence";
+            default:
+                return undefined;
         }
-
-        onChange(newFilterData);
     }
-
-    const handleSearch=(e:React.ChangeEvent<HTMLInputElement>)=>{
-        const newFilterData = { ...filterData, search: e.target.value };
-        setFilterData(newFilterData);
-
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-
-        timeoutRef.current = setTimeout(() => {
-            onChange(newFilterData);
-        }, 1000);
-    }
-
-    const handleType=(value:string)=>{
-        let newFilterData;
-    
-        if (value === "All Types") {
-            newFilterData = { ...filterData, type: undefined };
-        } else {
-            newFilterData = { ...filterData, type: value };
-        }
-    
-        setFilterData(newFilterData);
-        onChange(newFilterData);
-    }
-
-    const handleSortBy=(value:string)=>{
-        let newFilterData;
-
-        if(value==="Amount"){
-            newFilterData={...filterData, sortBy:"amount"}
-            setsortBy("Amount");
-        }else if(value==="Type"){
-            newFilterData={...filterData, sortBy:"type"}
-            setsortBy("Type");
-        }else if(value==="Start Date"){
-            newFilterData={...filterData, sortBy:"start_date"}
-            setsortBy("Start Date");
-        }else if(value==="Next Execution"){
-            newFilterData={...filterData,sortBy:"next_occurrence"}
-            setsortBy("Next Execution");
-        }else{
-            newFilterData={...filterData, sortBy:undefined}
-            setsortBy("Created Date");
-        }
-
-        setFilterData(newFilterData);
-        onChange(newFilterData);
-    }
-
-    const handleOrderBy=(value:string)=>{
-        let newFilterData;
-
-        if(value==="Descending"){
-            newFilterData={...filterData, sortOrder:undefined}
-            setOrderBy("Descending");
-        }else{
-            newFilterData={...filterData, sortOrder:"asc"}
-            setOrderBy("Ascending");
-        }
-
-        setFilterData(newFilterData);
-        onChange(newFilterData);
-    }
-
     return(
         <div className="bg-white rounded-2xl shadow-xl px-5 py-2 pb-10">
             <h2 className="text-2xl font-medium">Reccuring Filters & Search</h2>
@@ -100,29 +44,29 @@ function RecurringFilter({onChange}:{onChange:(filterData?:ParamFilters)=>void})
                         <p>Search</p>
                         <input 
                         className="p-2 border border-gray-300 rounded-lg w-full"
-                        value={filterData?.search||""}
-                        onChange={handleSearch}
+                        value={searchValue}
+                        onChange={(e)=>setSearchValue(e.target.value)}
                         placeholder="Search Recurring..."
                         />
                     </div>
                     <div className="flex-1 min-w-56">
                         <p>Type</p>
-                        <DropDownOptions values={["All Types","income","expense"]} value={filterData?.type||"All Types"} onChange={handleType}/>
+                        <DropDownOptions values={["All Types","income","expense"]} value={type} onChange={(value)=>setType(value)}/>
                     </div>
                     <div className="flex-1 min-w-56">
                         <p>Status</p>
-                        <DropDownOptions values={["Any","Active","Paused"]} value={status} onChange={handleStatus}/>
+                        <DropDownOptions values={["Any","Active","Paused"]} value={status} onChange={(value)=>setStatus(value)}/>
                     </div>
                 </div>
 
                 <div className="flex gap-5 flex-wrap mt-5">
                     <div className="flex-1 min-w-56">
                         <p>Sort By</p>
-                        <DropDownOptions values={["Created Date","Amount","Type","Start Date","Next Execution"]} value={sortBy} onChange={handleSortBy}/>
+                        <DropDownOptions values={["Date","Amount","Type","Start Date","Next Execution"]} value={sort} onChange={(value)=>setSort(value)}/>
                     </div>
                     <div className="flex-1 min-w-56">
                         <p>Order By</p>
-                        <DropDownOptions values={["Ascending","Descending"]} value={orderBy} onChange={handleOrderBy}/>
+                        <DropDownOptions values={["Ascending","Descending"]} value={order} onChange={(value)=>setOrder(value)}/>
                     </div>
                 </div>
             </div>

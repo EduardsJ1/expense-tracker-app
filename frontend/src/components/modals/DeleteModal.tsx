@@ -1,4 +1,4 @@
-import {deleteReccuring} from "../../api/reccurring";
+import {deleteReccuring} from "../../features/reccurring/api/reccurring";
 import { deleteTransaction } from "../../features/transactions/api/transactions";
 
 function DeleteModal(

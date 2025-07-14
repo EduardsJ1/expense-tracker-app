@@ -1,64 +1,13 @@
-import Navbar from "../components/Navbar";
-import { useReccurring } from "../hooks/useReccurring";
-import ReccuringTransactionsTable from "../features/reccurring/components/ReccuringTransactionsTable";
-import { useState } from "react";
-import {updateReccuring} from "../api/reccurring";
-import ReccuringTransactionsCards from "../features/reccurring/components/ReccuringTransactionsCards";
-import NewReccurringModal from "../features/analytics/components/CreateNewReccurring";
-import type {ReccurringType} from "../types/reccurring"
-import RecurringFilter from "../features/reccurring/components/RecurringFilters";
-import type { ParamFilters } from "../api/reccurring";
 import MainLayot from "../layouts/MainLayout";
-function Recurring(){
-    const [currentPage,setCurrentPage]=useState(1);
-    const [refreshKey, setRefreshKey] = useState(0);
-    const [reccuringToEdit,setReccuringToEdit]=useState<ReccurringType|null>(null);
-    const [filters,setFilters]=useState<ParamFilters|undefined>();
-    const {reccuringData,loading,error}=useReccurring({page:currentPage,refreshKey:refreshKey,...filters});
-
-    const [displayReccurringModal,SetDisplayReccurringModal]=useState(false);
-    const handleCloseModal=()=>{
-        SetDisplayReccurringModal(false);
-    }
-    const handleOpenReccuringModal = (reccuringData:ReccurringType|null=null)=>{
-        setReccuringToEdit(reccuringData);
-        SetDisplayReccurringModal(true);
-    }
-
-    const handlepage=(page:number)=>{
-        setCurrentPage(page);
-    }
-    const handleActive= async (id:number,is_active:boolean)=>{
-        await updateReccuring(id,{is_active});
-        setRefreshKey((prev)=>prev+1);
-    }
-
-    const refreshReccurring=()=>{
-        setRefreshKey((prev)=>prev+1);
-    }
-
-    const handleFiltersChange=(newFilters?:ParamFilters)=>{
-        setFilters(newFilters);
-        setCurrentPage(1);
-    }
+import { RecurringDashboard } from "../features/reccurring";
+function RecurringPage(){
     return(
         <>
         <MainLayot>
-            <div className="pt-10">
-                <RecurringFilter onChange={handleFiltersChange}/>
-            </div>
-            <div>
-                <div className="hidden lg:block">
-                    <ReccuringTransactionsTable ReccuringData={reccuringData} handlePage={handlepage} handlePause={handleActive} handleDeleteReccuring={refreshReccurring} openReccuringModal={handleOpenReccuringModal}/>
-                </div>
-                <div className="block lg:hidden">
-                    <ReccuringTransactionsCards ReccurringData={reccuringData} handlePage={handlepage} handlePause={handleActive} handleDeleteReccuring={refreshReccurring} openReccuringModal={handleOpenReccuringModal}/>
-                </div>
-            </div>
+            <RecurringDashboard/>
         </MainLayot>
-        <NewReccurringModal display={displayReccurringModal} closeModal={handleCloseModal} onRecurringCreate={refreshReccurring} ReccuringToEdit={reccuringToEdit}/>
         </>
     )
 }
 
-export default Recurring;
+export default RecurringPage;

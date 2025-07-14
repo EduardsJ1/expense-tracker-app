@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react";
-import {createReccurring,updateReccuring} from "../../../api/reccurring";
-import type {CreateReccurringType,ReccurringType} from "../../../types/reccurring";
+import {createReccurring,updateReccuring} from "../../reccurring/api/reccurring";
+import type {CreateReccurringType,ReccurringType} from "../../reccurring/types/reccurring";
 import { useAuth } from "../../../hooks/useAuth";
 import DropDownOptions from "../../../components/ui/DropDownOptions";
 import CategoryInput from "../../../components/ui/CategoryInput";

@@ -1,30 +1,15 @@
 
-import type { ReccurringData, updateReccuringType,CreateReccurringType } from "../types/reccurring";
-import api from ".";
-export interface ParamFilters{
-    form?:string,
-    to?:string,
-    type?:string,
-    category?:string,
-    maxAmount?:number,
-    minAmount?:number,
-    sortBy?:string,
-    sortOrder?:string,
-    is_active?:boolean,
-    search?:string,
-    page?:number,
-    items?:number
-}
+import type { ReccurringData, updateReccuringType,CreateReccurringType,RecurringFilters } from "../types/reccurring";
+import api from "../../../api";
 
 
 
-export const getReccurring=async (params:ParamFilters)=>{
+export const getReccurring=async (params?:RecurringFilters)=>{
     const result = await api.get<ReccurringData>("/recurring",{params});
     return result;
 }
 
 export const updateReccuring=async (id:number,update:updateReccuringType)=>{
-    //console.log("sending this update",update);
     const result = await api.patch(`/recurring/${id}`,update);
     return result;
 }

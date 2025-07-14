@@ -1,12 +1,9 @@
-import type {ReccurringData} from "../types/reccurring";
-import type {ParamFilters} from "../api/reccurring";
+import type {ReccurringData, RecurringFilters} from "../types/reccurring";
 import { getReccurring } from "../api/reccurring";
 import { useEffect, useState } from "react";
 
-interface RefreshParams extends ParamFilters{
-    refreshKey?:number
-}
-export const useReccurring=(filters:RefreshParams)=>{
+
+export const useReccurring=(filters?:RecurringFilters)=>{
     const [reccuringData,setReccurring]=useState<ReccurringData>();
     const [loading,setLoading] = useState(true);
     const [error,setError] = useState<string | null>(null);

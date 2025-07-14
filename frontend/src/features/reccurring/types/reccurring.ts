@@ -62,3 +62,19 @@ export interface CreateReccurringType{
     start_date: string,
     is_active: boolean
 }
+
+export interface RecurringFilters{
+    form?:string,
+    to?:string,
+    type?:string,
+    category?:string,
+    maxAmount?:number,
+    minAmount?:number,
+    sortBy?:string,
+    sortOrder?:string,
+    is_active?:boolean,
+    search?:string,
+    page?:number,
+    items?:number,
+    refreshKey?:any,
+}

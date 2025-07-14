@@ -1,54 +1,24 @@
-import type { ReccurringData,ReccurringType } from "../../../types/reccurring";
-import Pagination from "../../../components/Pagination";
+import type { ReccurringData,ReccurringType } from "../types/reccurring";
 import { formatLocalDateTime } from "../../../utils/formatDate";
 import ResumeIcon from "../../../components/ui/icons/ResumeIcons";
 import PausedIcon from "../../../components/ui/icons/PausedIcon";
 import EditIcon from "../../../components/ui/icons/EditIcon";
 import TrashIcon from "../../../components/ui/icons/TrashIcon";
-import DeleteModal from "../../../components/modals/DeleteModal";
-import { useState } from "react";
 
 function ReccuringTransactionsCards({
   ReccurringData,
-  handlePage,
   handlePause,
   handleDeleteReccuring,
-  openReccuringModal
+  handleEdit
 }: {
   ReccurringData?: ReccurringData;
-  handlePage: (page: number) => void;
   handlePause: (id: number, is_active: boolean) => void;
-  handleDeleteReccuring: () => void;
-  openReccuringModal:(reccurringData?:ReccurringType)=>void
+  handleDeleteReccuring: (id:number) => void;
+  handleEdit:(reccurringData:ReccurringType)=>void
 }) {
-  const [deleteDisplay, setDeleteDisplay] = useState(false);
-  const [deleteid, setDeleteId] = useState(0);
-
-  const handleDelete = (id: number) => {
-    setDeleteId(id);
-    setDeleteDisplay(true);
-  };
-
-  const handleCloseDelete = () => {
-    setDeleteDisplay(false);
-  };
 
   return (
-    <div className="w-full bg-white mt-10 rounded-2xl p-5 pb-10 mb-10 shadow-xl">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-medium">Reccuring Transactions</h2>
-          <p className="text-base mt-1 text-neutral-500">
-            Manage your automatic transactions
-          </p>
-        </div>
-        <div>
-          <button onClick={()=>openReccuringModal()} className="bg-green-600 text-white rounded-xl px-4 py-1 font-medium cursor-pointer hover:bg-green-700">
-            Add Reccurring
-          </button>
-        </div>
-      </div>
-
+    <div>
       {/* Mobile-first card layout */}
       {ReccurringData?.data && ReccurringData.data.length===0 ?(
                     <div className="w-full h-80 flex pt-10">
@@ -117,7 +87,7 @@ function ReccuringTransactionsCards({
                     {reccuring.is_active?(<><ResumeIcon size={16} color="#ffffff"/>Active</>):(<><PausedIcon size={16} color="#000000"/>Paused</>)}
                 </span>
                 <div className="flex items-center space-x-1">
-                  <button onClick={()=>openReccuringModal(reccuring)} className="border-1 border-neutral-400 rounded-md p-2 hover:bg-neutral-300 cursor-pointer">
+                  <button onClick={()=>handleEdit(reccuring)} className="border-1 border-neutral-400 rounded-md p-2 hover:bg-neutral-300 cursor-pointer">
                     <EditIcon size={20} />
                   </button>
                   <button
@@ -133,7 +103,7 @@ function ReccuringTransactionsCards({
                     )}
                   </button>
                   <button
-                    onClick={() => handleDelete(reccuring.id)}
+                    onClick={() => handleDeleteReccuring(reccuring.id)}
                     className="border-1 border-neutral-400 rounded-md p-2 hover:bg-neutral-300 cursor-pointer"
                   >
                     <TrashIcon size={20} />
@@ -144,17 +114,6 @@ function ReccuringTransactionsCards({
           ))}
       </div>
                 )}
-      <Pagination
-        totalPages={ReccurringData?.totalPages || 1}
-        currentPage={ReccurringData?.currentpage || 1}
-        setPage={handlePage}
-      />
-      <DeleteModal
-        display={deleteDisplay}
-        closeModal={handleCloseDelete}
-        onDeleted={handleDeleteReccuring}
-        reccurringid={deleteid}
-      />
     </div>
   );
 }
