@@ -7,12 +7,14 @@ import DollarSign from "../components/ui/icons/DollarSign"
 function Login() {
   const { loginUser } = useAuth();
   const navigate = useNavigate();
+  
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError]= useState<string|undefined>(undefined);
   const [passwordError, setPasswordError]=useState<string|undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const checkEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,9 +44,12 @@ function Login() {
     }
     
     try {
+      setLoading(true);
       await loginUser(email, password);
+      setLoading(false);
       navigate("/dashboard");
     } catch (error:any) {
+      setLoading(false)
       setError(error.response.data.message);
     }
   };
@@ -98,7 +103,7 @@ function Login() {
             type="submit"
             className="w-full bg-gray-800 font-medium text-white py-2 rounded hover:bg-gray-600 cursor-pointer"
           >
-            Login
+            {loading?"Loging in...":"Login"}
           </button>
           <div className="h-3">
             {error && (
