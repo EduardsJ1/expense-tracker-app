@@ -70,14 +70,14 @@ const FromatTableData=(
                             </p>
                         </div>
                         <div>
-                            <p className="text-left text-neutral-400 cursor-default">
+                            <div className="text-left text-neutral-400 cursor-default">
                                 <HoverModal 
                                     content={<p className="text-black">{recurring.note}</p>}
                                     delay={200}
                                 >
                                     {limitString({string:recurring.note||"",charCount:12})}
                                 </HoverModal>
-                                </p>
+                                </div>
                         </div>
                     </div>,
         "Amount":recurring.type==="income"?
