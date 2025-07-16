@@ -39,7 +39,7 @@ function Dashboard(){
                 </div>
                 <div className="flex space-x-2 justify-between gap-5 flex-wrap mb-5">
                     <QuickActions AddTransaction={()=>setTransactionDisplay(true)} AddRecurring={()=>setRecurringDisplay(true)} styles="flex-1 min-w-[300px] min-h-[310px]"/>
-                    <RecentTransactions data={transactions?.data ?? []} style="flex-1 min-w-[300px] min-h-[310px]"/>
+                    <RecentTransactions loading={transactionsLoading} data={transactions?.data ?? []} style="flex-1 min-w-[300px] min-h-[310px]"/>
                     <CategoryExpenseStats style="flex-1 min-w-[300px] min-h-[310px]"/>
                 </div>
                 <div className="flex space-x-2 justify-center gap-5 flex-wrap">
